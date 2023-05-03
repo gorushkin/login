@@ -23,6 +23,8 @@ export const LoginPage: FC = () => {
     const loginOffsetWidth = login.current?.offsetWidth;
     const panelOffsetWidth = panel.current?.offsetWidth;
     const pageOffsetWidth = page.current?.offsetWidth;
+    const styles: CSSProperties = { right: `0px`, left: 'unset'  };
+    setPanelStyles(styles);
 
     if (!panelOffsetWidth || !loginOffsetWidth || !pageOffsetWidth) return;
 
@@ -30,10 +32,57 @@ export const LoginPage: FC = () => {
     pageWidth.current = pageOffsetWidth;
   }, []);
 
-  const movePanel = (currentRight: number, currentWidth: number) => {
+  const movePanelToRight = (currentLeft: number, currentWidth: number) => {
+    const limitLeft = pageWidth.current - panelWidth.current;
+    console.log('limitLeft: ', limitLeft);
+    const newLeft = currentLeft + STEP;
+    const isLimitLeftReached = newLeft >= limitLeft;
+    const left = isLimitLeftReached ? limitLeft : newLeft;
+    console.log('left: ', left);
+
+    const newLeftOffset = pageWidth.current - left - currentWidth;
+
+    if (newLeftOffset < 50) {
+      // debugger;
+    }
+
+    const maxWidth =
+      newLeftOffset <= 0
+        ? Math.max(currentWidth + newLeftOffset, panelWidth.current)
+        : currentWidth;
+
+    const isPanelInTheMiddle = newLeftOffset <= left;
+
+    if (isPanelInTheMiddle && !isPageUpdateBlocked.current) {
+      setCurrentWindow('login');
+      isPanelClickBlocked.current = false;
+    }
+
+    const styles: CSSProperties = { left: `${left}px`, maxWidth: `${maxWidth}px` };
+    setPanelStyles(styles);
+    if (isLimitLeftReached) return;
+    setTimeout(() => {
+      movePanelToRight(left, maxWidth);
+    }, DELAY);
+  };
+
+  const toRight = (currentWidth: number) => {
+    const limitWidth = panelWidth.current * 2;
+    const newWidth = currentWidth + 50;
+    const isLimitReached = newWidth >= limitWidth;
+    const width = isLimitReached ? limitWidth : newWidth;
+    const styles: CSSProperties = { maxWidth: `${width}px`, left: '0px' };
+    setPanelStyles(styles);
+    if (isLimitReached) return movePanelToRight(0, newWidth);
+    setTimeout(() => {
+      toRight(width);
+    }, DELAY);
+  };
+
+  const movePanelToLeft = (currentRight: number, currentWidth: number) => {
     const limitRight = pageWidth.current - panelWidth.current;
     const newRight = currentRight + STEP;
-    const isLimitRightReached = currentRight >= limitRight;
+    const isLimitRightReached = newRight >= limitRight;
     const right = isLimitRightReached ? limitRight : newRight;
 
     const newLeftOffset = pageWidth.current - right - currentWidth;
@@ -46,6 +95,7 @@ export const LoginPage: FC = () => {
 
     if (isPanelInTheMiddle && !isPageUpdateBlocked.current) {
       setCurrentWindow('signUp');
+      isPanelClickBlocked.current = false;
       // isPageUpdateBlocked.current = true;
     }
 
@@ -53,25 +103,25 @@ export const LoginPage: FC = () => {
     setPanelStyles(styles);
     if (isLimitRightReached) return;
     setTimeout(() => {
-      movePanel(right, maxWidth);
+      movePanelToLeft(right, maxWidth);
     }, DELAY);
   };
 
-  const increaseWidth = (currentWidth: number) => {
+  const toLeft = (currentWidth: number) => {
     const limitWidth = panelWidth.current * 2;
     const newWidth = currentWidth + 50;
     const isLimitReached = newWidth >= limitWidth;
     const width = isLimitReached ? limitWidth : newWidth;
-    const styles: CSSProperties = { maxWidth: `${width}px` };
+    const styles: CSSProperties = { maxWidth: `${width}px`, right: '0px' };
     setPanelStyles(styles);
     if (isLimitReached) {
       const { offsetLeft } = panel.current as HTMLDivElement;
       const currentRight = pageWidth.current - newWidth - offsetLeft;
-      movePanel(currentRight, newWidth);
+      movePanelToLeft(currentRight, newWidth);
       return;
     }
     setTimeout(() => {
-      increaseWidth(width);
+      toLeft(width);
     }, DELAY);
   };
 
@@ -79,7 +129,12 @@ export const LoginPage: FC = () => {
     if (!panel.current || isPanelClickBlocked.current) return;
     const { offsetWidth } = panel.current;
     isPanelClickBlocked.current = true;
-    increaseWidth(offsetWidth);
+    if (currentWindow === 'login') toLeft(offsetWidth);
+    if (currentWindow === 'signUp') {
+      const styles: CSSProperties = { left: `0px`, right: 'unset' };
+      setPanelStyles(styles);
+      toRight(offsetWidth);
+    }
   };
 
   return (
@@ -94,7 +149,7 @@ export const LoginPage: FC = () => {
           signUp
         </div>
       )}
-      <div className={style.panel}>Panel</div>
+      {/* <div className={style.panel}>Panel</div> */}
       <div style={panelStyles} ref={panel} onClick={clickPanelHandler} className={style.floatPanel}>
         Panel
       </div>
