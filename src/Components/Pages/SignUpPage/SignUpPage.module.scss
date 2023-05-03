@@ -8,19 +8,31 @@
 .login {
   width: 100%;
   background: red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 4rem;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .panel {
   width: 100%;
-  max-width: 30rem;
+  max-width: 25rem;
 }
 
 .floatPanel {
   position: absolute;
   left: 0;
   top: 0;
-  width: 30rem;
+  width: 25rem;
   bottom: 0;
   background: blue;
   transition: all 0.1s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 4rem;
+  font-weight: 700;
+  color: #ffffff;
 }

@@ -1,14 +1,14 @@
 import { useRef, useState, CSSProperties, FC } from 'react';
 import style from './Login.module.scss';
 import { useLayoutEffect } from 'react';
-import { Page } from '../../../Layout/Layout';
 
 const STEP = 50;
 const DELAY = 10;
+type Mode = 'login' | 'signUp';
 
-export const LoginPage: FC<Page> = ({ onclick }) => {
+export const LoginPage: FC = () => {
   const [panelStyles, setPanelStyles] = useState<CSSProperties>({});
-
+  const [currentWindow, setCurrentWindow] = useState<Mode>('login');
   const panel = useRef<HTMLDivElement>(null);
   const login = useRef<HTMLDivElement>(null);
   const page = useRef<HTMLDivElement>(null);
@@ -16,7 +16,8 @@ export const LoginPage: FC<Page> = ({ onclick }) => {
   const pageWidth = useRef<number>(0);
   const panelWidth = useRef<number>(0);
 
-  const isPanelBlocked = useRef(false);
+  const isPanelClickBlocked = useRef(false);
+  const isPageUpdateBlocked = useRef(false);
 
   useLayoutEffect(() => {
     const loginOffsetWidth = login.current?.offsetWidth;
@@ -40,6 +41,13 @@ export const LoginPage: FC<Page> = ({ onclick }) => {
       newLeftOffset <= 0
         ? Math.max(currentWidth + newLeftOffset, panelWidth.current)
         : currentWidth;
+
+    const isPanelInTheMiddle = newLeftOffset <= right;
+
+    if (isPanelInTheMiddle && !isPageUpdateBlocked.current) {
+      setCurrentWindow('signUp');
+      // isPageUpdateBlocked.current = true;
+    }
 
     const styles: CSSProperties = { right: `${right}px`, maxWidth: `${maxWidth}px` };
     setPanelStyles(styles);
@@ -68,17 +76,24 @@ export const LoginPage: FC<Page> = ({ onclick }) => {
   };
 
   const clickPanelHandler = () => {
-    if (!panel.current || isPanelBlocked.current) return;
+    if (!panel.current || isPanelClickBlocked.current) return;
     const { offsetWidth } = panel.current;
-    isPanelBlocked.current = true;
+    isPanelClickBlocked.current = true;
     increaseWidth(offsetWidth);
   };
 
   return (
     <div ref={page} className={style.wrapper}>
-      <div ref={login} className={style.login}>
-        Login
-      </div>
+      {currentWindow === 'login' && (
+        <div ref={login} className={style.login}>
+          Login
+        </div>
+      )}
+      {currentWindow === 'signUp' && (
+        <div ref={login} className={style.login}>
+          signUp
+        </div>
+      )}
       <div className={style.panel}>Panel</div>
       <div style={panelStyles} ref={panel} onClick={clickPanelHandler} className={style.floatPanel}>
         Panel

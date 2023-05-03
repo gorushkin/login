@@ -9,15 +9,5 @@ export interface Page {
 type Mode = 'login' | 'signUp';
 
 export const Layout = () => {
-  const [currentWindow, setCurrentWindow] = useState<Mode>('login');
-
-  const handleClick = useCallback((mode: Mode) => {
-    console.log('mode: ', mode);
-    setCurrentWindow(mode);
-  }, []);
-
-  if (currentWindow === 'login') return <LoginPage onclick={handleClick} />;
-  if (currentWindow === 'signUp') return <SignUpPage onclick={handleClick} />;
-
-  return null;
+  return <LoginPage />;
 };
