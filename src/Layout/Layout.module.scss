@@ -23,12 +23,12 @@
 
 .floatPanel {
   position: absolute;
-  left: 0;
   top: 0;
-  width: 25rem;
+  max-width: 25rem;
+  width: 100%;
   bottom: 0;
   background: blue;
-  transition: all 0.1s;
+  transition: all 0.10s;
   display: flex;
   justify-content: center;
   align-items: center;
