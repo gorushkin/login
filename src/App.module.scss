@@ -1,0 +1,26 @@
+.wrapper {
+  outline: 2px solid red;
+  display: flex;
+  width: 100%;
+  position: relative;
+}
+
+.login {
+  width: 100%;
+  background: red;
+}
+
+.panel {
+  width: 100%;
+  max-width: 25rem;
+}
+
+.floatPanel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 30rem;
+  bottom: 0;
+  background: blue;
+  transition: all 0.1s;
+}
