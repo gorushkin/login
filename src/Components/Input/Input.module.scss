@@ -1,6 +1,9 @@
+@import '../../variables.scss';
+
 .inputWrapper {
   position: relative;
   font-size: 0;
+  font-weight: normal;
 }
 
 .input {
@@ -8,9 +11,20 @@
   text-align: center;
   padding: 0px 14px;
   height: 60px;
-  border-radius: 15px;
+  border-radius: 5px;
   border: none;
-  border: 1px solid blue;
+  border: 1px solid $primary;
+
+  &Disabled {
+    border: 1px solid $disabled;
+    color: $disabled;
+  }
+
+  &Invalid {
+    border: 1px solid $error !important;
+    outline: none;
+    color: $error;
+  }
 }
 
 .inputLabel {
@@ -20,13 +34,21 @@
   top: 50%;
   transform: translate(0, -50%);
   transition: all 0.2s;
+  font-weight: 500;
 
   &Active {
     top: 0;
     background: #ffffff;
-    padding: 10px;
+    padding: 0 10px;
     left: 1rem;
     font-size: 1rem;
-    // outline: 2px solid red;
+  }
+
+  &Invalid {
+    color: $error;
+  }
+
+  &Disabled {
+    color: $disabled;
   }
 }
