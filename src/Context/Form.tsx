@@ -1,55 +1,34 @@
-import {
-  ReactNode,
-  useState,
-  createContext,
-  FC,
-  JSXElementConstructor,
-  ReactElement,
-  useContext,
-  useCallback,
-  useMemo,
-} from 'react';
-import { Children, isValidElement } from 'react';
+import { ReactNode, createContext, FC, useContext, useCallback, useMemo, FormEvent } from 'react';
+import { bus } from './FormListener';
+import { FormState } from './FormState';
 
 type ContextType = { onChange: (name: string, value: string) => void };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const FormContext = createContext<ContextType>({ onChange: () => {} });
 
-type FromType = {
+export type FormValues = { [x: string]: string };
+export type FormRefs = { [x: string]: React.RefObject<HTMLInputElement> };
+
+type FormType = {
   className: string;
   children: ReactNode;
+  form: FormState;
+  onSubmit: (values: FormValues) => void;
 };
 
-interface ItemProps extends ReactElement<any, string | JSXElementConstructor<any>> {
-  props: { value: string; name: string };
+interface Form<T> extends FC<T> {
+  form: () => FormState;
 }
 
-export const Form: FC<FromType> = ({ className, children }) => {
-  const arrayChildren = Children.toArray(children);
-
-  const formData = arrayChildren
-    .filter(
-      (item): item is ItemProps =>
-        !!(isValidElement(item) && typeof item.type === 'function' && item.type.name === 'Input')
-    )
-    .map(({ props: { name, value } }) => ({ name, value: value || '' }))
-    .reduce((acc, item) => {
-      return { ...acc, [item.name]: item.value };
-    }, {});
-
-  const [values, setValues] = useState(formData);
-  console.log('values: ', values);
-
-  // const filteredChildren = arrayChildren.filter(
-  //   (item) =>
-  //     !(isValidElement(item) && typeof item.type === 'function' && item.type.name === 'Input')
-  // );
-
-  const onChange = useCallback((name: string, value: string) => {
-    console.log('name: ', name);
-    setValues((state) => ({ ...state, [name]: value }));
-  }, []);
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const Form: Form<FormType> = ({ className, children, form, onSubmit = () => {} }) => {
+  const onChange = useCallback(
+    (name: string, value: string) => {
+      form.setValues({ [name]: value });
+    },
+    [form]
+  );
 
   const context = useMemo(
     () => ({
@@ -58,9 +37,17 @@ export const Form: FC<FromType> = ({ className, children }) => {
     [onChange]
   );
 
+  const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const values = form.getValues();
+    onSubmit(values);
+  };
+
   return (
     <FormContext.Provider value={context}>
-      <div className={className}>{arrayChildren}</div>
+      <form onSubmit={handleFormSubmit} className={className}>
+        {children}
+      </form>
     </FormContext.Provider>
   );
 };
@@ -70,3 +57,9 @@ export const useFormContext = () => {
 
   return context;
 };
+
+const form = new FormState(bus);
+
+Form.form = () => form;
+
+export { Form };

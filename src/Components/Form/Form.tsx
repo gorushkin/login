@@ -1,16 +1,27 @@
 import style from './Form.module.scss';
 import { Input } from '../Input/Input';
-import { Form } from '../../Context/Form';
+import { Form, FormValues } from '../../Context/Form';
+import { useEffect } from 'react';
 
 export const LoginForm = () => {
-  const loginValidator = (e: string) => !!e;
-  const passwordValidator = (e: string) => e.length > 5;
+  const loginValidator = (event: string) => !!event;
+  const passwordValidator = (event: string) => event.length > 5;
+
+  const form = Form.form();
+
+  const handleFormSubmit = (values: FormValues) => {
+    console.log('values: ', values);
+  };
+
+  useEffect(() => {
+    form.setValues({ login: 'gorushkin' });
+  }, [form]);
 
   return (
-    <Form className={style.form}>
-      <Input name='login0' type='text' className={style.input} rules={loginValidator} />
+    <Form onSubmit={handleFormSubmit} form={form} className={style.form}>
+      <Input name='login' type='text' className={style.input} rules={loginValidator} />
       <Input name='password' type='password' className={style.input} rules={passwordValidator} />
-      <span>asdfasfd</span>
+      <button type='submit'>Button</button>
     </Form>
   );
 };

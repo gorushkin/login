@@ -1,41 +1,55 @@
 import style from './Input.module.scss';
 import { cn } from '../../utils/utils';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useFormContext } from '../../Context/Form';
+import { Args, bus } from '../../Context/FormListener';
 
 export const Input = ({
   name,
   type,
   className = '',
   disabled = false,
-  invalid = false,
   value = '',
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  htmlRef = null,
   rules = () => true,
 }: {
   type: string;
   name: string;
   className?: string;
   disabled?: boolean;
-  invalid?: boolean;
   value?: string;
-  htmlRef?: React.RefObject<HTMLInputElement> | null;
   rules?: (value: string) => boolean;
 }) => {
   const inputWrapper = useRef<HTMLDivElement>(null);
-  const ref = useRef<HTMLInputElement>(null);
+  const input = useRef<HTMLInputElement>(null);
+
+  const updater = useCallback(
+    ({ name: newName, value }: Args) => {
+      if (name === newName && input.current) input.current.value = value;
+    },
+    [name]
+  );
+
+  const listener = useMemo(() => bus.add(name, updater), [name, updater]);
+
+  useLayoutEffect(() => {
+    listener.start();
+  }, [listener]);
 
   const { onChange } = useFormContext();
-
-  const input = htmlRef || ref;
 
   const [isActive, setIsActive] = useState(!!value);
   const [isInputValid, setIsInputValid] = useState(true);
 
   const handleInputChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     onChange(name, value);
-    // setIsInputValid(rules(value));
   };
 
   useEffect(() => {

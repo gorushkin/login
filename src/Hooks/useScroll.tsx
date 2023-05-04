@@ -1,4 +1,4 @@
-import { useRef, useState, CSSProperties, useLayoutEffect, RefObject, useEffect } from 'react';
+import { useRef, useState, CSSProperties, useLayoutEffect, RefObject } from 'react';
 
 const STEP = 50;
 const DELAY = 10;
