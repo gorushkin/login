@@ -1,4 +1,4 @@
-import { useRef, useState, CSSProperties, useLayoutEffect, RefObject } from 'react';
+import { useRef, useState, CSSProperties, useLayoutEffect, RefObject, useEffect } from 'react';
 
 const STEP = 50;
 const DELAY = 10;
@@ -21,7 +21,6 @@ export const useScroll = ({
   const [panelStyles, setPanelStyles] = useState<CSSProperties>({});
   const [direction, setDirection] = useState<Direction>('left');
 
-  const pageWidth = useRef<number>(0);
   const panelWidth = useRef<number>(0);
 
   useLayoutEffect(() => {
@@ -35,17 +34,18 @@ export const useScroll = ({
     if (!panelOffsetWidth || !loginOffsetWidth || !pageOffsetWidth) return;
 
     panelWidth.current = panelOffsetWidth;
-    pageWidth.current = pageOffsetWidth;
-    isLoaded.current = true
+    isLoaded.current = true;
   }, [login, page, panel]);
 
   const movePanel = (currentPosition: number, currentWidth: number) => {
-    const limitPosition = pageWidth.current - panelWidth.current;
+    if (!page.current) return;
+    const pageWidth = page.current.offsetWidth;
+    const limitPosition = pageWidth - panelWidth.current;
     const newPosition = currentPosition + STEP;
     const isLimitRightReached = newPosition >= limitPosition;
     const position = isLimitRightReached ? limitPosition : newPosition;
 
-    const newLeftOffset = pageWidth.current - position - currentWidth;
+    const newLeftOffset = pageWidth - position - currentWidth;
     const maxWidth =
       newLeftOffset <= 0
         ? Math.max(currentWidth + newLeftOffset, panelWidth.current)
@@ -64,7 +64,13 @@ export const useScroll = ({
 
     const styles: CSSProperties = { right, left, maxWidth: `${maxWidth}px` };
     setPanelStyles(styles);
-    if (isLimitRightReached) return;
+    if (isLimitRightReached) {
+      const left = direction === 'left' ? '0px' : 'unset';
+      const right = direction === 'right' ? '0px' : 'unset';
+      const styles: CSSProperties = { left, right };
+      setPanelStyles(styles);
+      return;
+    }
     setTimeout(() => {
       movePanel(position, maxWidth);
     }, DELAY);
@@ -100,5 +106,5 @@ export const useScroll = ({
     increaseSize(offsetWidth);
   };
 
-  return { panelStyles, panel,  panelClickHandler, login, page, direction };
+  return { panelStyles, panel, panelClickHandler, login, page, direction };
 };
