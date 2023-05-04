@@ -1,7 +1,7 @@
 import style from './Form.module.scss';
 import { Input } from '../Input/Input';
 import { Form, FormValues } from '../../Context/Form';
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 
 export const LoginForm = () => {
   const loginValidator = (event: string) => !!event;
@@ -13,14 +13,14 @@ export const LoginForm = () => {
     console.log('values: ', values);
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     form.setValues({ login: 'gorushkin' });
   }, [form]);
 
   return (
     <Form onSubmit={handleFormSubmit} form={form} className={style.form}>
       <Input name='login' type='text' className={style.input} rules={loginValidator} />
-      <Input name='password' type='password' className={style.input} rules={passwordValidator} />
+      {/* <Input name='password' type='password' className={style.input} rules={passwordValidator} /> */}
       <button type='submit'>Button</button>
     </Form>
   );

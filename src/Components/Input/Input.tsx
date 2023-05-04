@@ -17,27 +17,33 @@ export const Input = ({
   type,
   className = '',
   disabled = false,
-  value = '',
   rules = () => true,
 }: {
   type: string;
   name: string;
   className?: string;
   disabled?: boolean;
-  value?: string;
   rules?: (value: string) => boolean;
 }) => {
   const inputWrapper = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
+  const [isActive, setIsActive] = useState(false);
+  const [isInputValid, setIsInputValid] = useState(true);
+
+  useEffect(() => {
+    bus.broadcast({type: 'validate', name, isValid: isInputValid })
+  }, [isInputValid, name])
 
   const updater = useCallback(
     ({ name: newName, value }: Args) => {
-      if (name === newName && input.current) input.current.value = value;
+      if (name !== newName || !input.current) return;
+      input.current.value = value;
+      setIsActive(!!value);
     },
     [name]
   );
 
-  const listener = useMemo(() => bus.add(name, updater), [name, updater]);
+  const listener = useMemo(() => bus.add('update', updater), [updater]);
 
   useLayoutEffect(() => {
     listener.start();
@@ -45,17 +51,12 @@ export const Input = ({
 
   const { onChange } = useFormContext();
 
-  const [isActive, setIsActive] = useState(!!value);
-  const [isInputValid, setIsInputValid] = useState(true);
-
   const handleInputChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     onChange(name, value);
   };
 
   useEffect(() => {
     if (!inputWrapper) return;
-
-    if (!!value && input.current) input.current.value = value;
 
     const handleClick = () => {
       const { activeElement } = document;
@@ -67,7 +68,7 @@ export const Input = ({
     document.addEventListener('click', handleClick);
 
     return () => document.removeEventListener('click', handleClick);
-  }, [input, value]);
+  }, [input]);
 
   const handleInputBlur = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     setIsInputValid(rules(value));

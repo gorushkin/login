@@ -1,13 +1,18 @@
 export type Listeners<T> = Set<T>;
+type ActionName = 'update' | 'validate';
 export type Args = { name: string; value: string };
 export type ListenerFunction = ({ name, value }: Args) => void;
 
-class Listener {
-  name: string;
-  cb: ListenerFunction;
-  listeners: Listeners<ListenerFunction>;
+type BroadCast =
+  | { name: string; value: string; type: ActionName }
+  | { name: string; isValid: boolean; type: ActionName };
 
-  constructor(name: string, cb: ListenerFunction, listeners: Listeners<ListenerFunction>) {
+class Listener<T> {
+  name: string;
+  cb: T;
+  listeners: Listeners<T>;
+
+  constructor(name: string, cb: T, listeners: Listeners<T>) {
     this.name = name;
     this.cb = cb;
     this.listeners = listeners;
@@ -23,14 +28,15 @@ class Listener {
 }
 
 export class Bus {
-  private events: Record<string, Listeners<ListenerFunction>>;
+  private events: Record<string, Listeners<any>>;
   constructor() {
     this.events = {};
   }
 
-  public add = (name: string, cb: ListenerFunction) => {
+  public add = <T>(name: ActionName, cb: T) => {
+    console.log('name: ', name);
     if (!this.events[name]) {
-      this.events[name] = new Set<ListenerFunction>();
+      this.events[name] = new Set<T>();
     }
     const listeners = this.events[name];
 
@@ -38,13 +44,13 @@ export class Bus {
     return { start: () => listener.start(), stop: () => listener.stop() };
   };
 
-  public broadcast = ({ name, value }: Args) => {
-    const listeners = this.events[name];
+  public broadcast = (data: BroadCast) => {
+    const listeners = this.events[data.type];
 
     if (!listeners) return;
 
     listeners.forEach((listener) => {
-      listener({ name, value });
+      listener(data);
     });
   };
 }
