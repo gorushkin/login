@@ -88,12 +88,11 @@ export const useScroll = ({
     }, DELAY);
   };
 
-  const clickPanelHandler = () => {
+  const panelClickHandler = () => {
     if (!panel.current || isPanelClickBlocked.current) return;
     const { offsetWidth } = panel.current;
     isPanelClickBlocked.current = true;
     isPageUpdateBlocked.current = false;
-    console.log(direction);
     const left = direction === 'right' ? '0px' : 'unset';
     const right = direction === 'left' ? '0px' : 'unset';
     const styles: CSSProperties = { left, right };
@@ -101,5 +100,5 @@ export const useScroll = ({
     increaseSize(offsetWidth);
   };
 
-  return { panelStyles, panel, clickPanelHandler, login, page, direction };
+  return { panelStyles, panel,  panelClickHandler, login, page, direction };
 };
