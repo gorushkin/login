@@ -1,6 +1,5 @@
 import style from './LoginForm.module.scss';
-import { Input } from '../Input/Input';
-import { Form, FormData } from '../../Context/Form';
+import { Form, FormData } from '../Form/Form';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 export const LoginForm = () => {
@@ -41,9 +40,9 @@ export const LoginForm = () => {
       form={form}
       className={style.form}
     >
-      <Input name='login' type='text' className={style.input} rules={loginValidator} />
-      <Input name='name' type='text' className={style.input} />
-      <Input name='age' type='text' className={style.input} rules={ageValidator} />
+      <Form.Input name='login' type='text' className={style.input} rules={loginValidator} />
+      <Form.Input name='name' type='text' className={style.input} />
+      <Form.Input name='age' type='text' className={style.input} rules={ageValidator} />
       <button disabled={!isFormValid} type='submit'>
         Button
       </button>

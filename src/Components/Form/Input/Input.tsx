@@ -1,15 +1,18 @@
 import style from './Input.module.scss';
-import { cn } from '../../utils/utils';
-import {
-  ChangeEvent,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { useFormContext } from '../../Context/Form';
-import { ValueArgs, bus } from '../../Context/FormListener';
+import { cn } from '../../../utils/utils';
+import { ChangeEvent, FC, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useFormContext } from '../Form';
+import { ValueArgs, bus } from '../FormListener';
+
+export interface InputProps {
+  type: string;
+  name: string;
+  className?: string;
+  disabled?: boolean;
+  rules?: (value: string) => boolean;
+}
+
+// export interface InputComponent extends FC
 
 export const Input = ({
   name,
@@ -17,13 +20,7 @@ export const Input = ({
   className = '',
   disabled = false,
   rules = () => true,
-}: {
-  type: string;
-  name: string;
-  className?: string;
-  disabled?: boolean;
-  rules?: (value: string) => boolean;
-}) => {
+}: InputProps) => {
   const isMounted = useRef(false);
   const inputWrapper = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);

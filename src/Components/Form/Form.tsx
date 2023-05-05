@@ -1,6 +1,7 @@
 import { ReactNode, createContext, FC, useContext, useCallback, useMemo, FormEvent } from 'react';
 import { bus } from './FormListener';
 import { FormState } from './FormState';
+import { Input, InputProps } from './Input/Input';
 
 type ContextType = { onChange: (name: string, value: string) => void };
 
@@ -29,6 +30,8 @@ type FormType = {
 
 interface Form<T> extends FC<T> {
   form: () => FormState;
+  Input: ({ name, type, className, disabled, rules }: InputProps) => JSX.Element;
+  FormData: FormData
 }
 
 const Form: Form<FormType> = ({
@@ -78,5 +81,7 @@ export const useFormContext = () => {
 const form = new FormState(bus);
 
 Form.form = () => form;
+
+Form.Input = Input;
 
 export { Form };
