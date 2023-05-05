@@ -1,4 +1,4 @@
-import style from './Form.module.scss';
+import style from './LoginForm.module.scss';
 import { Input } from '../Input/Input';
 import { Form, FormValues } from '../../Context/Form';
 import { useLayoutEffect } from 'react';
@@ -20,7 +20,7 @@ export const LoginForm = () => {
   return (
     <Form onSubmit={handleFormSubmit} form={form} className={style.form}>
       <Input name='login' type='text' className={style.input} rules={loginValidator} />
-      {/* <Input name='password' type='password' className={style.input} rules={passwordValidator} /> */}
+      <Input name='password' type='password' className={style.input} rules={passwordValidator} />
       <button type='submit'>Button</button>
     </Form>
   );
