@@ -31,8 +31,8 @@ export const Input = ({
   const [isInputValid, setIsInputValid] = useState(true);
 
   useEffect(() => {
-    bus.broadcast({type: 'validate', name, isValid: isInputValid })
-  }, [isInputValid, name])
+    // bus.broadcast({ type: 'validate', name, isValid: isInputValid });
+  }, [isInputValid, name]);
 
   const updater = useCallback(
     ({ name: newName, value }: Args) => {
@@ -53,25 +53,20 @@ export const Input = ({
 
   const handleInputChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     onChange(name, value);
+    const isInputActive = input.current === document.activeElement;
+    setIsActive(isInputActive);
   };
 
-  useEffect(() => {
-    if (!inputWrapper) return;
-
-    const handleClick = () => {
-      const { activeElement } = document;
-      const isInputActive = inputWrapper.current?.contains(activeElement);
-      setIsActive(!!input.current?.value || !!isInputActive);
-      if (isInputActive) setIsInputValid(true);
-    };
-
-    document.addEventListener('click', handleClick);
-
-    return () => document.removeEventListener('click', handleClick);
-  }, [input]);
-
   const handleInputBlur = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    setIsInputValid(rules(value));
+    const isValid = rules(value);
+    setIsInputValid(isValid);
+    setIsActive(!!input.current?.value || false);
+    bus.broadcast({ type: 'validate', name, isValid });
+  };
+
+  const handleInputFocus = () => {
+    setIsActive(true);
+    setIsInputValid(true);
   };
 
   return (
@@ -87,6 +82,7 @@ export const Input = ({
         type={type}
         name={name}
         ref={input}
+        onFocus={handleInputFocus}
         onBlur={handleInputBlur}
       />
       <span
