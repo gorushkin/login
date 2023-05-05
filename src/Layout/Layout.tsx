@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import style from './Layout.module.scss';
 import { useScroll } from '../Hooks/useScroll';
-import { LoginForm } from '../Components/Form/Form';
+import { LoginForm } from '../Components/LoginForm/LoginForm';
 
 export const Layout = () => {
   const panel = useRef<HTMLDivElement>(null);

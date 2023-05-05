@@ -1,11 +1,20 @@
-export type Listeners<T> = Set<T>;
-type ActionName = 'update' | 'validate';
-export type Args = { name: string; value: string };
-export type ListenerFunction = ({ name, value }: Args) => void;
+import { FieldValidator } from './Form';
 
-type BroadCast =
-  | { name: string; value: string; type: ActionName }
-  | { name: string; isValid: boolean; type: ActionName };
+export type Listeners<T> = Set<T>;
+type ActionName = 'update' | 'validate' | 'extra';
+export type ValueArgs = { name: string; value: string };
+export type ValidatorArgs = { name: string; validator: FieldValidator };
+export type ValueSender = (data: ValueArgs | ValidatorArgs) => void;
+
+export type ValidatorData = {
+  name: string;
+  validator: FieldValidator;
+  type: ActionName;
+};
+
+export type ValueData = { name: string; value: string; type: ActionName };
+
+type BroadCast = ValueData | ValidatorData;
 
 class Listener<T> {
   name: string;
@@ -33,10 +42,9 @@ export class Bus {
     this.events = {};
   }
 
-  public add = <T>(name: ActionName, cb: T) => {
-    console.log('name: ', name);
+  public add = <ValueSender>(name: ActionName, cb: ValueSender) => {
     if (!this.events[name]) {
-      this.events[name] = new Set<T>();
+      this.events[name] = new Set<ValueSender>();
     }
     const listeners = this.events[name];
 

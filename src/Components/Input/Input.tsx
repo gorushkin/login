@@ -3,14 +3,13 @@ import { cn } from '../../utils/utils';
 import {
   ChangeEvent,
   useCallback,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 import { useFormContext } from '../../Context/Form';
-import { Args, bus } from '../../Context/FormListener';
+import { ValueArgs, bus } from '../../Context/FormListener';
 
 export const Input = ({
   name,
@@ -25,17 +24,14 @@ export const Input = ({
   disabled?: boolean;
   rules?: (value: string) => boolean;
 }) => {
+  const isMounted = useRef(false);
   const inputWrapper = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(false);
   const [isInputValid, setIsInputValid] = useState(true);
 
-  useEffect(() => {
-    // bus.broadcast({ type: 'validate', name, isValid: isInputValid });
-  }, [isInputValid, name]);
-
   const updater = useCallback(
-    ({ name: newName, value }: Args) => {
+    ({ name: newName, value }: ValueArgs) => {
       if (name !== newName || !input.current) return;
       input.current.value = value;
       setIsActive(!!value);
@@ -49,6 +45,12 @@ export const Input = ({
     listener.start();
   }, [listener]);
 
+  useLayoutEffect(() => {
+    if (isMounted.current || !name || !rules) return;
+    bus.broadcast({ type: 'validate', name, validator: rules });
+    isMounted.current = true;
+  }, [name, rules]);
+
   const { onChange } = useFormContext();
 
   const handleInputChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +63,6 @@ export const Input = ({
     const isValid = rules(value);
     setIsInputValid(isValid);
     setIsActive(!!input.current?.value || false);
-    bus.broadcast({ type: 'validate', name, isValid });
   };
 
   const handleInputFocus = () => {

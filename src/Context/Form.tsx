@@ -4,17 +4,27 @@ import { FormState } from './FormState';
 
 type ContextType = { onChange: (name: string, value: string) => void };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const FormContext = createContext<ContextType>({ onChange: () => {} });
+const FormContext = createContext<ContextType>({ onChange: () => undefined });
+export type FieldValidator = (value: string) => boolean;
 
 export type FormValues = { [x: string]: string };
+export type FormValidators = { [x: string]: FieldValidator };
+
+
+export type FormData = {
+  [x: string]: {
+    value: string;
+    isValid: boolean;
+  };
+};
+
 export type FormRefs = { [x: string]: React.RefObject<HTMLInputElement> };
 
 type FormType = {
   className: string;
   children: ReactNode;
   form: FormState;
-  onSubmit: (values: FormValues) => void;
+  onSubmit: (values: FormData) => void;
 };
 
 interface Form<T> extends FC<T> {

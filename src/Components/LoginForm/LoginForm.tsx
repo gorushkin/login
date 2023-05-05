@@ -1,26 +1,27 @@
 import style from './LoginForm.module.scss';
 import { Input } from '../Input/Input';
-import { Form, FormValues } from '../../Context/Form';
+import { Form, FormData } from '../../Context/Form';
 import { useLayoutEffect } from 'react';
 
 export const LoginForm = () => {
-  const loginValidator = (event: string) => !!event;
-  const passwordValidator = (event: string) => event.length > 5;
+  const loginValidator = (value: string) => !!value;
+  const passwordValidator = (value: string) => value.length > 5;
 
   const form = Form.form();
 
-  const handleFormSubmit = (values: FormValues) => {
+  const handleFormSubmit = (values: FormData) => {
     console.log('values: ', values);
+    console.log(form.isFormValid());
   };
 
   useLayoutEffect(() => {
-    form.setValues({ login: 'gorushkin' });
+    form.setValues({ login: 'gorushkin', name: 'Artyom' });
   }, [form]);
 
   return (
     <Form onSubmit={handleFormSubmit} form={form} className={style.form}>
       <Input name='login' type='text' className={style.input} rules={loginValidator} />
-      <Input name='password' type='password' className={style.input} rules={passwordValidator} />
+      <Input name='name' type='text' className={style.input} rules={passwordValidator} />
       <button type='submit'>Button</button>
     </Form>
   );

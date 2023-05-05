@@ -1,27 +1,46 @@
-import { FormValues } from './Form';
-import { Bus } from './FormListener';
+import { FormData, FormValidators, FormValues } from './Form';
+import { Bus, ValidatorData } from './FormListener';
+
+const DEFAULT_VALIDATOR = () => true;
 
 export class FormState {
-  private values: FormValues;
+  private values: FormData;
   private bus: Bus;
+  private validators: FormValidators;
 
   constructor(bus: Bus) {
-    const listener = bus.add(
-      'validate',
-      ({ name, isValid }: { name: string; isValid: boolean }) => {
-        console.log('name: ', name);
-        console.log('isValid: ', isValid);
-      }
-    );
+    this.validators = {};
+    const validate = ({ name, validator }: ValidatorData) => {
+      this.validators = { ...this.validators, ...{ [name]: validator } };
+    };
+
+    const listener = bus.add('validate', validate);
     listener.start();
-    this.values = {};
+    this.values = {} as FormData;
     this.bus = bus;
   }
 
+  isFormValid = (): boolean => {
+    const isFormInValid = Object.values(this.values).some((item) => !item.isValid);
+    return !isFormInValid;
+  };
+
   setValues = (obj: FormValues) => {
     const values = Object.entries(obj).map(([name, value]) => ({ name, value }));
-    this.values = { ...this.values, ...obj };
-    values.forEach(({ value, name }) => this.bus.broadcast({ type: 'update', value, name }));
+    const validatedValues = values.map(({ name, value }) => {
+      const validator = this.validators[name] || DEFAULT_VALIDATOR;
+      const isValid = validator(value);
+      return { value, isValid, name };
+    });
+
+    validatedValues.forEach(({ name, value }) => {
+      this.bus.broadcast({ type: 'update', name, value });
+    });
+
+    const validatedValuesObj = validatedValues.reduce((acc, { name, value, isValid }) => {
+      return { ...acc, [name]: { value, isValid } };
+    }, {} as FormData);
+    this.values = { ...this.values, ...validatedValuesObj };
   };
 
   getValues = () => this.values;
