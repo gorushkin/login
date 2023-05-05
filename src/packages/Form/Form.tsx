@@ -31,7 +31,6 @@ type FormType = {
 interface Form<T> extends FC<T> {
   form: () => FormState;
   Input: ({ name, type, className, disabled, rules }: InputProps) => JSX.Element;
-  FormData: FormData
 }
 
 const Form: Form<FormType> = ({
@@ -84,4 +83,4 @@ Form.form = () => form;
 
 Form.Input = Input;
 
-export { Form };
+export { Form, FormState };

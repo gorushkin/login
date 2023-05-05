@@ -1,6 +1,6 @@
 import style from './Input.module.scss';
 import { cn } from '../../../utils/utils';
-import { ChangeEvent, FC, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from '../Form';
 import { ValueArgs, bus } from '../FormListener';
 
@@ -11,8 +11,6 @@ export interface InputProps {
   disabled?: boolean;
   rules?: (value: string) => boolean;
 }
-
-// export interface InputComponent extends FC
 
 export const Input = ({
   name,

@@ -1,6 +1,8 @@
 import { FormData, FormValidators, FormValues } from './Form';
 import { Bus, ValidatorData } from './FormListener';
 
+const DEFAULT_VALIDATOR = () => true;
+
 export class FormState {
   private values: FormData;
   private bus: Bus;
@@ -34,9 +36,9 @@ export class FormState {
   setValues = (obj: FormValues) => {
     const values = Object.entries(obj).map(([name, value]) => ({ name, value }));
     const validatedValues = values.map(({ name, value }) => {
-      const validator = this.validators[name];
+      const validator = this.validators[name] || DEFAULT_VALIDATOR;
       const isValid = validator(value);
-      return { value, isValid, name };
+      return { value, isValid: true, name };
     });
 
     validatedValues.forEach(({ name, value }) => {
