@@ -10,7 +10,6 @@ export type FieldValidator = (value: string) => boolean;
 export type FormValues = { [x: string]: string };
 export type FormValidators = { [x: string]: FieldValidator };
 
-
 export type FormData = {
   [x: string]: {
     value: string;
@@ -25,19 +24,27 @@ type FormType = {
   children: ReactNode;
   form: FormState;
   onSubmit: (values: FormData) => void;
+  onValuesChange?: (values: FormData) => void;
 };
 
 interface Form<T> extends FC<T> {
   form: () => FormState;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const Form: Form<FormType> = ({ className, children, form, onSubmit = () => {} }) => {
+const Form: Form<FormType> = ({
+  className,
+  children,
+  form,
+  onSubmit = () => undefined,
+  onValuesChange = () => undefined,
+}) => {
   const onChange = useCallback(
     (name: string, value: string) => {
       form.setValues({ [name]: value });
+      const values = form.getValues();
+      onValuesChange(values)
     },
-    [form]
+    [form, onValuesChange]
   );
 
   const context = useMemo(

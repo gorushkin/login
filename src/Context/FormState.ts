@@ -21,6 +21,7 @@ export class FormState {
   }
 
   isFormValid = (): boolean => {
+    console.log(this.getValues());
     const isFormInValid = Object.values(this.values).some((item) => !item.isValid);
     return !isFormInValid;
   };
