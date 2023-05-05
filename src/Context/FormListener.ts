@@ -1,7 +1,7 @@
 import { FieldValidator } from './Form';
 
 export type Listeners<T> = Set<T>;
-type ActionName = 'update' | 'validate' | 'extra';
+type ActionName = 'update' | 'validate' | 'init';
 export type ValueArgs = { name: string; value: string };
 export type ValidatorArgs = { name: string; validator: FieldValidator };
 export type ValueSender = (data: ValueArgs | ValidatorArgs) => void;

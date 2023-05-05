@@ -47,7 +47,7 @@ export const Input = ({
 
   useLayoutEffect(() => {
     if (isMounted.current || !name || !rules) return;
-    bus.broadcast({ type: 'validate', name, validator: rules });
+    bus.broadcast({ type: 'validate', name, validator: rules, value: '' });
     isMounted.current = true;
   }, [name, rules]);
 

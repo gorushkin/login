@@ -42,7 +42,7 @@ const Form: Form<FormType> = ({
     (name: string, value: string) => {
       form.setValues({ [name]: value });
       const values = form.getValues();
-      onValuesChange(values)
+      onValuesChange(values);
     },
     [form, onValuesChange]
   );

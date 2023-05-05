@@ -5,7 +5,6 @@ import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 export const LoginForm = () => {
   const loginValidator = (value: string) => !!value;
-  const nameValidator = (value: string) => value.length > 2 && value.length < 5;
   const ageValidator = (value: string) => {
     console.log('value: ', value);
     const regex = /^(0|[1-9][0-9]*)$/;
@@ -32,7 +31,6 @@ export const LoginForm = () => {
   }, [form]);
 
   useEffect(() => {
-    console.log(form.isFormValid());
     setIsFormValid(form.isFormValid());
   }, [form]);
 
@@ -44,7 +42,7 @@ export const LoginForm = () => {
       className={style.form}
     >
       <Input name='login' type='text' className={style.input} rules={loginValidator} />
-      <Input name='name' type='text' className={style.input} rules={nameValidator} />
+      <Input name='name' type='text' className={style.input} />
       <Input name='age' type='text' className={style.input} rules={ageValidator} />
       <button disabled={!isFormValid} type='submit'>
         Button
