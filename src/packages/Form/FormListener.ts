@@ -1,7 +1,7 @@
 import { FieldValidator } from './Form';
-
-export type Listeners<T> = Set<T>;
-type ActionName = 'update' | 'validate' | 'init';
+// TODO: replace object with map
+export type Listeners<T> = { [x: number]: T };
+export type ActionName = 'update' | 'validate' | 'init';
 export type ValueArgs = { name: string; value: string };
 export type ValidatorArgs = { name: string; validator: FieldValidator };
 export type ValueSender = (data: ValueArgs | ValidatorArgs) => void;
@@ -18,22 +18,24 @@ type BroadCast = ValueData | ValidatorData;
 
 class Listener<T> {
   name: string;
+  id: number;
   cb: T;
   listeners: Listeners<T>;
 
-  constructor(name: string, cb: T, listeners: Listeners<T>) {
+  constructor(name: string, id: number, cb: T, listeners: Listeners<T>) {
     this.name = name;
     this.cb = cb;
+    this.id = id;
     this.listeners = listeners;
   }
 
-  start() {
-    this.listeners.add(this.cb);
-  }
+  start = () => {
+    this.listeners[this.id] = this.cb;
+  };
 
-  stop() {
-    this.listeners.delete(this.cb);
-  }
+  stop = () => {
+    delete this.listeners[this.id];
+  };
 }
 
 export class Bus {
@@ -42,25 +44,28 @@ export class Bus {
     this.events = {};
   }
 
-  public add = <ValueSender>(name: ActionName, cb: ValueSender) => {
-    if (!this.events[name]) {
-      this.events[name] = new Set<ValueSender>();
+  public add = <ValueSender>(actionName: ActionName, id: number, cb: ValueSender) => {
+    if (!this.events[actionName]) {
+      this.events[actionName] = {};
     }
-    const listeners = this.events[name];
+    const listeners = this.events[actionName];
 
-    const listener = new Listener(name, cb, listeners);
-    return { start: () => listener.start(), stop: () => listener.stop() };
+    const listener = new Listener(actionName, id, cb, listeners);
+    return listener;
   };
 
   public broadcast = (data: BroadCast) => {
     const listeners = this.events[data.type];
-
     if (!listeners) return;
 
-    listeners.forEach((listener) => {
+    Object.values(listeners).forEach((listener) => {
       listener(data);
     });
   };
+
+  getInfo() {
+    console.log(this.events);
+  }
 }
 
 export const bus = new Bus();

@@ -1,11 +1,21 @@
-import { ReactNode, createContext, FC, useContext, useCallback, useMemo, FormEvent } from 'react';
-import { bus } from './FormListener';
+import {
+  ReactNode,
+  createContext,
+  FC,
+  useContext,
+  useCallback,
+  useMemo,
+  FormEvent,
+  useEffect,
+  memo,
+} from 'react';
+import { ValidatorData, bus } from './FormListener';
 import { FormState } from './FormState';
 import { Input, InputProps } from './Input/Input';
 
-type ContextType = { onChange: (name: string, value: string) => void };
+type ContextType = { onChange: (name: string, value: string) => void; form: FormState };
 
-const FormContext = createContext<ContextType>({ onChange: () => undefined });
+export const FormContext = createContext<ContextType | null>(null);
 export type FieldValidator = (value: string) => boolean;
 
 export type FormValues = { [x: string]: string };
@@ -21,25 +31,14 @@ export type FormData = {
 export type FormRefs = { [x: string]: React.RefObject<HTMLInputElement> };
 
 type FormType = {
-  className: string;
   children: ReactNode;
   form: FormState;
-  onSubmit: (values: FormData) => void;
-  onValuesChange?: (values: FormData) => void;
+  onValuesChange: (values: FormData) => void;
 };
 
-interface Form<T> extends FC<T> {
-  form: () => FormState;
-  Input: ({ name, type, className, disabled, rules }: InputProps) => JSX.Element;
-}
+type Form<T> = FC<T>;
 
-const Form: Form<FormType> = ({
-  className,
-  children,
-  form,
-  onSubmit = () => undefined,
-  onValuesChange = () => undefined,
-}) => {
+const Form: Form<FormType> = ({ children, form, onValuesChange }) => {
   const onChange = useCallback(
     (name: string, value: string) => {
       form.setValues({ [name]: value });
@@ -49,38 +48,40 @@ const Form: Form<FormType> = ({
     [form, onValuesChange]
   );
 
-  const context = useMemo(
-    () => ({
-      onChange,
-    }),
-    [onChange]
-  );
+  const context = useMemo(() => ({ form, onChange }), [onChange, form]);
+
 
   const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const values = form.getValues();
-    onSubmit(values);
+    console.log('values: ', values);
   };
 
   return (
     <FormContext.Provider value={context}>
-      <form onSubmit={handleFormSubmit} className={className}>
-        {children}
-      </form>
+      <form onSubmit={handleFormSubmit}>{children}</form>
     </FormContext.Provider>
   );
 };
 
-export const useFormContext = () => {
+export const useFormContext = (): ContextType => {
   const context = useContext(FormContext);
+
+  if (!context) throw new Error('There is an error');
 
   return context;
 };
 
-const form = new FormState(bus);
+export const useUserForm = () => {
+  const form = useMemo(() => {
+    return new FormState(bus);
+  }, []);
 
-Form.form = () => form;
+  useEffect(() => {
+    return () => form.destroy();
+  }, [form]);
 
-Form.Input = Input;
+  return form;
+};
 
 export { Form, FormState };

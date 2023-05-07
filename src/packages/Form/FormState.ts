@@ -1,31 +1,47 @@
 import { FormData, FormValidators, FormValues } from './Form';
 import { Bus, ValidatorData } from './FormListener';
+// TOTO: replace id with something else
+let i = 0;
 
 const DEFAULT_VALIDATOR = () => true;
 
 export class FormState {
-  private values: FormData;
+  values: FormData;
   private bus: Bus;
-  private validators: FormValidators;
+  validators: FormValidators;
+  private listener: {
+    start: () => void;
+    stop: () => void;
+  };
 
   constructor(bus: Bus) {
+    this.values = {} as FormData;
     this.validators = {};
     this.bus = bus;
+    this.listener = {
+      start: () => undefined,
+      stop: () => undefined,
+    };
     this.initForm();
-    this.values = {} as FormData;
+  }
+
+  private validate({ name, validator }: ValidatorData) {
+    const value = '';
+    const isValid = validator(value);
+    const item = { [name]: { isValid, value } };
+    this.values = { ...this.values, ...item };
+    this.validators = { ...this.validators, ...{ [name]: validator } };
   }
 
   private initForm = () => {
-    const validate = ({ name, validator }: ValidatorData) => {
-      const value = '';
-      const isValid = validator(value);
-      const item = { [name]: { isValid, value } };
-      this.values = { ...this.values, ...item };
-      this.validators = { ...this.validators, ...{ [name]: validator } };
-    };
+    i = i + 1;
+    const id = i;
+    this.listener = this.bus.add('validate', id, this.validate.bind(this));
+    this.listener.start();
+  };
 
-    const listener = this.bus.add('validate', validate);
-    listener.start();
+  destroy = () => {
+    this.listener.stop();
   };
 
   isFormValid = (): boolean => {
@@ -38,7 +54,7 @@ export class FormState {
     const validatedValues = values.map(({ name, value }) => {
       const validator = this.validators[name] || DEFAULT_VALIDATOR;
       const isValid = validator(value);
-      return { value, isValid: true, name };
+      return { value, isValid, name };
     });
 
     validatedValues.forEach(({ name, value }) => {
