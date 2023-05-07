@@ -1,10 +1,8 @@
 import style from './Input.module.scss';
-import { cn } from '../../../utils/utils';
+import { cn, id } from '../../../utils/utils';
 import { ChangeEvent, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from '../Form';
 import { ValueArgs, bus } from '../FormListener';
-// TOTO: replace id with something else
-let i = 0;
 
 export interface InputProps {
   type: string;
@@ -37,9 +35,7 @@ export const Input = ({
   );
 
   const listener = useMemo(() => {
-    i += 1;
-    const id = i;
-    return bus.add('update', id, updater);
+    return bus.add('update', id(), updater);
   }, [updater]);
 
   useLayoutEffect(() => {
@@ -54,7 +50,7 @@ export const Input = ({
     isMounted.current = true;
   }, [name, rules]);
 
-  const {  onChange } = useFormContext();
+  const { onChange } = useFormContext();
 
   const handleInputChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     onChange(name, value);

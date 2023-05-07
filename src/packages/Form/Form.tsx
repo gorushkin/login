@@ -56,7 +56,6 @@ const Form: Form<FormType> = ({ children, form, onValuesChange, onSubmit }) => {
     event.preventDefault();
     const values = form.getValues();
     onSubmit(values);
-    bus.getInfo();
   };
 
   return (

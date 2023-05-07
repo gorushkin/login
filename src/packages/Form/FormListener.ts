@@ -62,10 +62,6 @@ export class Bus {
       listener(data);
     });
   };
-
-  getInfo() {
-    console.log(this.events);
-  }
 }
 
 export const bus = new Bus();

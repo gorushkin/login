@@ -1,7 +1,6 @@
+import { id } from '../../utils/utils';
 import { FormData, FormValidators, FormValues } from './Form';
 import { Bus, ValidatorData } from './FormListener';
-// TOTO: replace id with something else
-let i = 0;
 
 const DEFAULT_VALIDATOR = () => true;
 
@@ -34,9 +33,7 @@ export class FormState {
   }
 
   private initForm = () => {
-    i = i + 1;
-    const id = i;
-    this.listener = this.bus.add('validate', id, this.validate.bind(this));
+    this.listener = this.bus.add('validate', id(), this.validate.bind(this));
     this.listener.start();
   };
 
