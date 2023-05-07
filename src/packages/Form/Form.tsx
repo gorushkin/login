@@ -9,7 +9,7 @@ import {
   useEffect,
   memo,
 } from 'react';
-import { ValidatorData, bus } from './FormListener';
+import { bus } from './FormListener';
 import { FormState } from './FormState';
 import { Input, InputProps } from './Input/Input';
 
@@ -28,17 +28,19 @@ export type FormData = {
   };
 };
 
-export type FormRefs = { [x: string]: React.RefObject<HTMLInputElement> };
-
 type FormType = {
   children: ReactNode;
   form: FormState;
   onValuesChange: (values: FormData) => void;
+  onSubmit: (values: FormData) => void;
 };
 
-type Form<T> = FC<T>;
+interface Form<T> extends FC<T> {
+  Input: ({ name, type, className, disabled, rules }: InputProps) => JSX.Element;
+  useForm: () => FormState;
+}
 
-const Form: Form<FormType> = ({ children, form, onValuesChange }) => {
+const Form: Form<FormType> = ({ children, form, onValuesChange, onSubmit }) => {
   const onChange = useCallback(
     (name: string, value: string) => {
       form.setValues({ [name]: value });
@@ -50,11 +52,11 @@ const Form: Form<FormType> = ({ children, form, onValuesChange }) => {
 
   const context = useMemo(() => ({ form, onChange }), [onChange, form]);
 
-
   const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const values = form.getValues();
-    console.log('values: ', values);
+    onSubmit(values);
+    bus.getInfo();
   };
 
   return (
@@ -64,15 +66,7 @@ const Form: Form<FormType> = ({ children, form, onValuesChange }) => {
   );
 };
 
-export const useFormContext = (): ContextType => {
-  const context = useContext(FormContext);
-
-  if (!context) throw new Error('There is an error');
-
-  return context;
-};
-
-export const useUserForm = () => {
+const useFormState = () => {
   const form = useMemo(() => {
     return new FormState(bus);
   }, []);
@@ -83,5 +77,24 @@ export const useUserForm = () => {
 
   return form;
 };
+
+export const useFormContext = (): ContextType => {
+  const context = useContext(FormContext);
+
+  if (!context) throw new Error('There is an error');
+
+  return context;
+};
+
+export const useForm = () => {
+  const form = useFormState();
+
+  if (!form) throw new Error('There is an error');
+
+  return form;
+};
+
+Form.Input = Input;
+Form.useForm = useForm;
 
 export { Form, FormState };

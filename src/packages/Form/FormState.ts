@@ -44,10 +44,7 @@ export class FormState {
     this.listener.stop();
   };
 
-  isFormValid = (): boolean => {
-    const isFormInValid = Object.values(this.values).some((item) => !item.isValid);
-    return !isFormInValid;
-  };
+  isFormValid = (): boolean => !Object.values(this.values).some((item) => !item.isValid);
 
   setValues = (obj: FormValues) => {
     const values = Object.entries(obj).map(([name, value]) => ({ name, value }));
