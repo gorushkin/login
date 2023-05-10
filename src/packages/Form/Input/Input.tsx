@@ -1,5 +1,5 @@
 import style from './Input.module.scss';
-import { cn } from '../../../utils/utils';
+import { cn, id } from '../../../utils/utils';
 import { ChangeEvent, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from '../Form';
 import { ValueArgs, bus } from '../FormListener';
@@ -26,18 +26,22 @@ export const Input = ({
   const [isInputValid, setIsInputValid] = useState(true);
 
   const updater = useCallback(
-    ({ name: newName, value }: ValueArgs) => {
-      if (name !== newName || !input.current) return;
+    ({ name: updatedPropertyName, value }: ValueArgs) => {
+      if (name !== updatedPropertyName || !input.current) return;
       input.current.value = value;
       setIsActive(!!value);
     },
     [name]
   );
 
-  const listener = useMemo(() => bus.add('update', updater), [updater]);
+  const listener = useMemo(() => {
+    return bus.add('update', id(), updater);
+  }, [updater]);
 
   useLayoutEffect(() => {
     listener.start();
+
+    return () => listener.stop();
   }, [listener]);
 
   useLayoutEffect(() => {

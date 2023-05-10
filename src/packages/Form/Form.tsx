@@ -1,11 +1,21 @@
-import { ReactNode, createContext, FC, useContext, useCallback, useMemo, FormEvent } from 'react';
+import {
+  ReactNode,
+  createContext,
+  FC,
+  useContext,
+  useCallback,
+  useMemo,
+  FormEvent,
+  useEffect,
+  memo,
+} from 'react';
 import { bus } from './FormListener';
 import { FormState } from './FormState';
 import { Input, InputProps } from './Input/Input';
 
-type ContextType = { onChange: (name: string, value: string) => void };
+type ContextType = { onChange: (name: string, value: string) => void; form: FormState };
 
-const FormContext = createContext<ContextType>({ onChange: () => undefined });
+export const FormContext = createContext<ContextType | null>(null);
 export type FieldValidator = (value: string) => boolean;
 
 export type FormValues = { [x: string]: string };
@@ -18,28 +28,19 @@ export type FormData = {
   };
 };
 
-export type FormRefs = { [x: string]: React.RefObject<HTMLInputElement> };
-
 type FormType = {
-  className: string;
   children: ReactNode;
   form: FormState;
+  onValuesChange: (values: FormData) => void;
   onSubmit: (values: FormData) => void;
-  onValuesChange?: (values: FormData) => void;
 };
 
 interface Form<T> extends FC<T> {
-  form: () => FormState;
   Input: ({ name, type, className, disabled, rules }: InputProps) => JSX.Element;
+  useForm: () => FormState;
 }
 
-const Form: Form<FormType> = ({
-  className,
-  children,
-  form,
-  onSubmit = () => undefined,
-  onValuesChange = () => undefined,
-}) => {
+const Form: Form<FormType> = ({ children, form, onValuesChange, onSubmit }) => {
   const onChange = useCallback(
     (name: string, value: string) => {
       form.setValues({ [name]: value });
@@ -49,12 +50,7 @@ const Form: Form<FormType> = ({
     [form, onValuesChange]
   );
 
-  const context = useMemo(
-    () => ({
-      onChange,
-    }),
-    [onChange]
-  );
+  const context = useMemo(() => ({ form, onChange }), [onChange, form]);
 
   const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -64,23 +60,40 @@ const Form: Form<FormType> = ({
 
   return (
     <FormContext.Provider value={context}>
-      <form onSubmit={handleFormSubmit} className={className}>
-        {children}
-      </form>
+      <form onSubmit={handleFormSubmit}>{children}</form>
     </FormContext.Provider>
   );
 };
 
-export const useFormContext = () => {
+const useFormState = () => {
+  const form = useMemo(() => {
+    return new FormState(bus);
+  }, []);
+
+  useEffect(() => {
+    return () => form.destroy();
+  }, [form]);
+
+  return form;
+};
+
+export const useFormContext = (): ContextType => {
   const context = useContext(FormContext);
+
+  if (!context) throw new Error('There is an error');
 
   return context;
 };
 
-const form = new FormState(bus);
+export const useForm = () => {
+  const form = useFormState();
 
-Form.form = () => form;
+  if (!form) throw new Error('There is an error');
+
+  return form;
+};
 
 Form.Input = Input;
+Form.useForm = useForm;
 
 export { Form, FormState };

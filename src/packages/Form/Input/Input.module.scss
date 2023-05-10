@@ -35,7 +35,7 @@
   transform: translate(0, -50%);
   transition: all 0.2s;
   font-weight: 500;
-
+  pointer-events: none;
 
   &Active {
     top: 0;
