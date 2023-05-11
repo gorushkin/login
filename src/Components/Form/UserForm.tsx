@@ -1,5 +1,7 @@
 import { FC, ReactNode, useState, useEffect, useCallback } from 'react';
 import { Form, FormData } from '../../packages/Form/Form';
+import { loginRequest } from '../../utils/services';
+import { useFetch } from '../../Hooks/useFetch';
 
 type UseForm = {
   values?: { [x: string]: string };
@@ -24,9 +26,21 @@ export const UserForm: FC<UseForm> = ({ children = '', buttonTitle, values = {} 
     setIsFormValid(form.isFormValid());
   }, [form]);
 
-  const handleSubmit = useCallback((values: FormData) => {
-    console.log(values);
-  }, []);
+  const [{ data, error, isLoading }, handle] = useFetch(loginRequest);
+  console.log('isLoading: ', isLoading);
+  // console.log('error: ', error);
+  console.log('data: ', data);
+
+  const handleSubmit = useCallback(
+    async (values: FormData) => {
+      const { password, login } = values;
+      await handle({ login: login.value, password: password.value });
+
+      // const response = await loginRequest({ login: login.value, password: password.value });
+      // console.log('response: ', response);
+    },
+    [handle]
+  );
 
   return (
     <Form onSubmit={handleSubmit} onValuesChange={handleValuesChange} form={form}>

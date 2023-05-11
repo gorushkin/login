@@ -6,7 +6,7 @@ import { UserForm } from './UserForm';
 const valueValidator = (value: string) => !!value;
 
 const LoginForm = () => (
-  <UserForm values={{ login: 'Artyom' }} buttonTitle='login'>
+  <UserForm buttonTitle='login'>
     <Form.Input name='login' type='text' className={style.input} rules={valueValidator} />
     <Form.Input name='password' type='text' className={style.input} rules={valueValidator} />
   </UserForm>
