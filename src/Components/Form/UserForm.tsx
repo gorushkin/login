@@ -2,6 +2,9 @@ import { FC, ReactNode, useState, useEffect, useCallback } from 'react';
 import { Form, FormData } from '../../packages/Form/Form';
 import { loginRequest } from '../../utils/services';
 import { useFetch } from '../../Hooks/useFetch';
+import style from './UserForm.module.scss';
+import { Alert } from '../Alert/Alert';
+import { cn } from '../../utils/utils';
 
 type UseForm = {
   values?: { [x: string]: string };
@@ -11,7 +14,7 @@ type UseForm = {
 };
 
 export const UserForm: FC<UseForm> = ({ children = '', buttonTitle, values = {} }) => {
-  const [isFormValid, setIsFormValid] = useState(true);
+  const [isFormValid, setIsFormValid] = useState(false);
   const form = Form.useForm();
 
   useEffect(() => {
@@ -27,26 +30,32 @@ export const UserForm: FC<UseForm> = ({ children = '', buttonTitle, values = {} 
   }, [form]);
 
   const [{ data, error, isLoading }, handle] = useFetch(loginRequest);
-  console.log('isLoading: ', isLoading);
-  // console.log('error: ', error);
-  console.log('data: ', data);
 
   const handleSubmit = useCallback(
-    async (values: FormData) => {
+    (values: FormData) => {
+      if (isLoading) return;
       const { password, login } = values;
-      await handle({ login: login.value, password: password.value });
-
-      // const response = await loginRequest({ login: login.value, password: password.value });
-      // console.log('response: ', response);
+      handle({ login: login.value, password: password.value });
     },
-    [handle]
+    [handle, isLoading]
   );
 
   return (
-    <Form onSubmit={handleSubmit} onValuesChange={handleValuesChange} form={form}>
+    <Form
+      className={style.form}
+      onSubmit={handleSubmit}
+      onValuesChange={handleValuesChange}
+      form={form}
+    >
+      <Alert error={error} />
       <>{children}</>
-      <button disabled={!isFormValid} type='submit'>
+      <button
+        className={cn(style.button, isLoading && style.buttonIsLoading)}
+        disabled={!isFormValid}
+        type='submit'
+      >
         {buttonTitle}
+        {isLoading && <div className={style.loader} />}
       </button>
     </Form>
   );

@@ -7,7 +7,7 @@ enum ROUTE {
 
 const getRoute = (route: ROUTE) => config.BASE_URL.API_BASE_URL + route;
 
-export type Response<K> = { ok: true; data: K } | { ok: false; error: string };
+export type Response<K> = { ok: true; data: K } | { ok: false; errors: string[] };
 
 export type Request<T, K> = (data: T) => Promise<Response<K>>;
 
