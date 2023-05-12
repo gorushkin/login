@@ -21,19 +21,3 @@
   width: 100%;
   max-width: 25rem;
 }
-
-.floatPanel {
-  position: absolute;
-  top: 0;
-  max-width: 25rem;
-  width: 100%;
-  bottom: 0;
-  background: blue;
-  transition: all 0.1s;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 4rem;
-  font-weight: 700;
-  color: #ffffff;
-}

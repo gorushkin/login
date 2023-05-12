@@ -4,6 +4,7 @@ import { useScroll } from '../Hooks/useScroll';
 import { LoginForm } from '../Components/Form/LoginForm';
 import { SignUpForm } from '../Components/Form/SignUpForm';
 import { cn } from '../utils/utils';
+import { FloatPanel } from '../Components/FloatPanel/FloatPanel';
 
 export const Layout = () => {
   const panel = useRef<HTMLDivElement>(null);
@@ -21,9 +22,12 @@ export const Layout = () => {
         {direction === 'right' && <SignUpForm />}
       </div>
       <div className={style.panel}></div>
-      <div style={panelStyles} ref={panel} onClick={panelClickHandler} className={style.floatPanel}>
-        Panel
-      </div>
+      <FloatPanel
+        direction={direction}
+        htmlRef={panel}
+        panelClickHandler={panelClickHandler}
+        panelStyles={panelStyles}
+      />
     </div>
   );
 };

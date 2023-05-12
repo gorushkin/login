@@ -5,6 +5,7 @@ import { useFetch } from '../../Hooks/useFetch';
 import style from './UserForm.module.scss';
 import { Alert } from '../Alert/Alert';
 import { cn } from '../../utils/utils';
+import { Button } from '../Button/Button';
 
 type UseForm = {
   values?: { [x: string]: string };
@@ -49,14 +50,12 @@ export const UserForm: FC<UseForm> = ({ children = '', buttonTitle, values = {} 
     >
       <Alert error={error} />
       <>{children}</>
-      <button
-        className={cn(style.button, isLoading && style.buttonIsLoading)}
-        disabled={!isFormValid}
-        type='submit'
-      >
-        {buttonTitle}
+      {/* <button className={cn(style.button, isLoading && style.buttonIsLoading)} type='submit'>
         {isLoading && <div className={style.loader} />}
-      </button>
+      </button> */}
+      <Button isLoading={isLoading} disabled={!isFormValid}>
+        {buttonTitle}
+      </Button>
     </Form>
   );
 };

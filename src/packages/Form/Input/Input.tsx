@@ -1,13 +1,6 @@
 import style from './Input.module.scss';
 import { cn, id } from '../../../utils/utils';
-import {
-  ChangeEvent,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { ChangeEvent, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from '../Form';
 import { ValueArgs, bus } from '../FormListener';
 
@@ -31,6 +24,7 @@ export const Input = ({
   const input = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(false);
   const [isInputValid, setIsInputValid] = useState(true);
+  const [isInFocus, setIsInFocus] = useState(false);
 
   const updater = useCallback(
     ({ name: updatedPropertyName, value }: ValueArgs) => {
@@ -70,11 +64,13 @@ export const Input = ({
     const isValid = rules(value);
     setIsInputValid(isValid);
     setIsActive(!!input.current?.value || false);
+    setIsInFocus(false);
   };
 
   const handleInputFocus = () => {
     setIsActive(true);
     setIsInputValid(true);
+    setIsInFocus(true);
   };
 
   return (
@@ -85,6 +81,7 @@ export const Input = ({
         className={cn(
           style.input,
           disabled && style.inputDisabled,
+          isInFocus && style.inputIsInFocus,
           !isInputValid && style.inputInvalid
         )}
         type={type}
@@ -98,6 +95,7 @@ export const Input = ({
           style.inputLabel,
           isActive && style.inputLabelActive,
           !isInputValid && style.inputLabelInvalid,
+          isInFocus && style.inputLabelIsInFocus,
           disabled && style.inputLabelDisabled
         )}
       >
