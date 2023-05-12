@@ -1,6 +1,13 @@
 import style from './Input.module.scss';
 import { cn, id } from '../../../utils/utils';
-import { ChangeEvent, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  ChangeEvent,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useFormContext } from '../Form';
 import { ValueArgs, bus } from '../FormListener';
 
@@ -45,9 +52,9 @@ export const Input = ({
   }, [listener]);
 
   useLayoutEffect(() => {
+    if (input.current) input.current.value = '';
     if (isMounted.current || !name || !rules) return;
-    const value = input.current?.value || '';
-    bus.broadcast({ type: 'validate', name, validator: rules, value });
+    bus.broadcast({ type: 'validate', name, validator: rules });
     isMounted.current = true;
   }, [name, rules]);
 
