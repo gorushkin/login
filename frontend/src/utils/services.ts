@@ -12,7 +12,7 @@ export type Response<K> = { ok: true; data: K } | { ok: false; errors: string[] 
 export type Request<T, K> = (data: T) => Promise<Response<K>>;
 
 export type LoginRequestPayload = { login: string; password: string };
-export type LoginRequestResult = { user: string, age: number };
+export type LoginRequestResult = { user: string; age: number };
 
 type RegisterRequestPayload = {
   login: string;
@@ -21,7 +21,7 @@ type RegisterRequestPayload = {
   name: string;
 };
 
-type RegisterRequestResult = { user: string };
+export type RegisterRequestResult = { user: string };
 
 const request =
   <T, K>(route: ROUTE) =>
