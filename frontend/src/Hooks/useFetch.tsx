@@ -3,6 +3,8 @@ import { Response } from '../utils/services';
 
 type Fetch<T, K> = (params: T) => Promise<Response<K>>;
 
+const DEFAULT_ERROR = ['Something went wrong'];
+
 export const useFetch = <T, K>(
   request: Fetch<T, K>
 ): [
@@ -26,13 +28,13 @@ export const useFetch = <T, K>(
           setIsLoading(true);
           const response = await request(params);
           if (!response.ok) {
-            setError(response.errors);
+            setError(response.errors || DEFAULT_ERROR);
             setData(null);
             return;
           }
           setData(response.data);
         } catch (error) {
-          setError(['Something went wrong']);
+          setError(DEFAULT_ERROR);
         } finally {
           setIsLoading(false);
         }
