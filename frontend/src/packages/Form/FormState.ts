@@ -1,11 +1,11 @@
 import { id } from '../../utils/utils';
-import { FormData, FormValidators, FormValues } from './Form';
+import { FormValues, FormValidators, FormRawValues } from './Form';
 import { Bus, ValidatorData } from './FormListener';
 
 const DEFAULT_VALIDATOR = () => true;
 
 export class FormState {
-  values: FormData;
+  values: FormValues;
   private bus: Bus;
   validators: FormValidators;
   private listener: {
@@ -14,7 +14,7 @@ export class FormState {
   };
 
   constructor(bus: Bus) {
-    this.values = {} as FormData;
+    this.values = {} as FormValues;
     this.validators = {};
     this.bus = bus;
     this.listener = {
@@ -43,7 +43,7 @@ export class FormState {
 
   isFormValid = (): boolean => !Object.values(this.values).some((item) => !item.isValid);
 
-  setValues = (obj: FormValues) => {
+  setValues = (obj: FormRawValues) => {
     const values = Object.entries(obj).map(([name, value]) => ({ name, value }));
     const validatedValues = values.map(({ name, value }) => {
       const validator = this.validators[name] || DEFAULT_VALIDATOR;
@@ -57,7 +57,7 @@ export class FormState {
 
     const validatedValuesObj = validatedValues.reduce((acc, { name, value, isValid }) => {
       return { ...acc, [name]: { value, isValid } };
-    }, {} as FormData);
+    }, {} as FormValues);
     this.values = { ...this.values, ...validatedValuesObj };
   };
 

@@ -15,12 +15,12 @@ import { Input, InputProps } from './Input/Input';
 type ContextType = { onChange: (name: string, value: string) => void; form: FormState };
 
 export const FormContext = createContext<ContextType | null>(null);
-export type FieldValidator = (value: string, values?: FormData) => boolean;
+export type FieldValidator = (value: string, values: FormValues) => boolean;
 
-export type FormValues = { [x: string]: string };
+export type FormRawValues = { [x: string]: string };
 export type FormValidators = { [x: string]: FieldValidator };
 
-export type FormData = {
+export type FormValues = {
   [x: string]: {
     value: string;
     isValid: boolean;
@@ -31,8 +31,8 @@ type FormType = {
   children: ReactNode;
   className?: string;
   form: FormState;
-  onValuesChange: (values: FormData) => void;
-  onSubmit: (values: FormData) => void;
+  onValuesChange: (values: FormValues) => void;
+  onSubmit: (values: FormValues) => void;
 };
 
 interface Form<T> extends FC<T> {

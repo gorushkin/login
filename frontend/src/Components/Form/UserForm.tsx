@@ -1,5 +1,5 @@
 import { ReactNode, useState, useEffect, useCallback } from 'react';
-import { Form, FormData } from '../../packages/Form/Form';
+import { Form, FormValues } from '../../packages/Form/Form';
 import { Request } from '../../utils/services';
 import { useFetch } from '../../Hooks/useFetch';
 import style from './UserForm.module.scss';
@@ -42,7 +42,7 @@ export const UserForm = <T, K>({
   }, [data, obSubmit]);
 
   const handleSubmit = useCallback(
-    (values: FormData) => {
+    (values: FormValues) => {
       if (isLoading) return;
       const payload = Object.entries(values).reduce((acc, [name, { value }]) => {
         return { ...acc, [name]: value };

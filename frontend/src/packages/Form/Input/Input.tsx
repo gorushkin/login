@@ -3,14 +3,14 @@ import { cn, id } from '../../../utils/utils';
 import { ChangeEvent, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from '../Form';
 import { ValueArgs, bus } from '../FormListener';
-import { FormData } from '../Form';
+import { FormValues } from '../Form';
 
 export interface InputProps {
   type: string;
   name: string;
   className?: string;
   disabled?: boolean;
-  rules?: (value: string, values?: FormData) => boolean;
+  rules?: (value: string, values: FormValues) => boolean;
 }
 
 export const Input = ({
