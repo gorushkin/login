@@ -26,7 +26,7 @@ export class FormState {
 
   private validate({ name, validator }: ValidatorData) {
     const value = '';
-    const isValid = validator(value);
+    const isValid = true;
     const item = { [name]: { isValid, value } };
     this.values = { ...this.values, ...item };
     this.validators = { ...this.validators, ...{ [name]: validator } };
@@ -47,7 +47,7 @@ export class FormState {
     const values = Object.entries(obj).map(([name, value]) => ({ name, value }));
     const validatedValues = values.map(({ name, value }) => {
       const validator = this.validators[name] || DEFAULT_VALIDATOR;
-      const isValid = validator(value);
+      const isValid = validator(value, this.values);
       return { value, isValid, name };
     });
 

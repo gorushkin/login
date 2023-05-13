@@ -3,13 +3,14 @@ import { cn, id } from '../../../utils/utils';
 import { ChangeEvent, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from '../Form';
 import { ValueArgs, bus } from '../FormListener';
+import { FormData } from '../Form';
 
 export interface InputProps {
   type: string;
   name: string;
   className?: string;
   disabled?: boolean;
-  rules?: (value: string) => boolean;
+  rules?: (value: string, values?: FormData) => boolean;
 }
 
 export const Input = ({
@@ -52,7 +53,7 @@ export const Input = ({
     isMounted.current = true;
   }, [name, rules]);
 
-  const { onChange } = useFormContext();
+  const { onChange, form } = useFormContext();
 
   const handleInputChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     onChange(name, value);
@@ -61,7 +62,8 @@ export const Input = ({
   };
 
   const handleInputBlur = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    const isValid = rules(value);
+    const values = form.getValues();
+    const isValid = rules(value, values);
     setIsInputValid(isValid);
     setIsActive(!!input.current?.value || false);
     setIsInFocus(false);

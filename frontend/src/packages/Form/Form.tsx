@@ -7,7 +7,6 @@ import {
   useMemo,
   FormEvent,
   useEffect,
-  memo,
 } from 'react';
 import { bus } from './FormListener';
 import { FormState } from './FormState';
@@ -16,7 +15,7 @@ import { Input, InputProps } from './Input/Input';
 type ContextType = { onChange: (name: string, value: string) => void; form: FormState };
 
 export const FormContext = createContext<ContextType | null>(null);
-export type FieldValidator = (value: string) => boolean;
+export type FieldValidator = (value: string, values?: FormData) => boolean;
 
 export type FormValues = { [x: string]: string };
 export type FormValidators = { [x: string]: FieldValidator };
