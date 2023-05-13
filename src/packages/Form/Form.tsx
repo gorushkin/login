@@ -30,6 +30,7 @@ export type FormData = {
 
 type FormType = {
   children: ReactNode;
+  className?: string;
   form: FormState;
   onValuesChange: (values: FormData) => void;
   onSubmit: (values: FormData) => void;
@@ -40,7 +41,7 @@ interface Form<T> extends FC<T> {
   useForm: () => FormState;
 }
 
-const Form: Form<FormType> = ({ children, form, onValuesChange, onSubmit }) => {
+const Form: Form<FormType> = ({ children, form, onValuesChange, onSubmit, className = '' }) => {
   const onChange = useCallback(
     (name: string, value: string) => {
       form.setValues({ [name]: value });
@@ -60,7 +61,9 @@ const Form: Form<FormType> = ({ children, form, onValuesChange, onSubmit }) => {
 
   return (
     <FormContext.Provider value={context}>
-      <form onSubmit={handleFormSubmit}>{children}</form>
+      <form className={className} onSubmit={handleFormSubmit}>
+        {children}
+      </form>
     </FormContext.Provider>
   );
 };

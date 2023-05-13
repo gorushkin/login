@@ -9,21 +9,23 @@
 .input {
   font-size: 3rem;
   text-align: center;
-  padding: 0px 14px;
-  height: 60px;
+  padding: 0.5rem 1rem;
   border-radius: 5px;
   border: none;
-  border: 1px solid $primary;
+  background: $input-background-grey;
 
   &Disabled {
-    border: 1px solid $disabled;
-    color: $disabled;
+    color: $input-disabled;
   }
 
   &Invalid {
-    border: 1px solid $error !important;
+    border: 1px solid $input-error !important;
     outline: none;
-    color: $error;
+    color: $input-error;
+  }
+
+  &IsInFocus {
+    background: $input-background-white;
   }
 }
 
@@ -33,23 +35,35 @@
   left: 2rem;
   top: 50%;
   transform: translate(0, -50%);
-  transition: all 0.2s;
+  transition: all 0.3s ease, background-color 0s 0s;
   font-weight: 500;
   pointer-events: none;
+  border-radius: 50px;
+  background: transparent;
 
   &Active {
     top: 0;
-    background: #ffffff;
+    background: linear-gradient(
+      180deg,
+      $input-background-white 0%,
+      $input-background-white 50%,
+      $input-background-grey 50%,
+      $input-background-grey 100%
+    );
     padding: 0 10px;
     left: 1rem;
     font-size: 1rem;
   }
 
+  &IsInFocus {
+    background: $input-background-white;
+  }
+
   &Invalid {
-    color: $error;
+    color: $input-error;
   }
 
   &Disabled {
-    color: $disabled;
+    color: $input-disabled;
   }
 }

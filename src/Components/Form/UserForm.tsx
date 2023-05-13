@@ -1,15 +1,24 @@
-import { FC, ReactNode, useState, useEffect, useCallback } from 'react';
+import { ReactNode, useState, useEffect, useCallback } from 'react';
 import { Form, FormData } from '../../packages/Form/Form';
+import { Request } from '../../utils/services';
+import { useFetch } from '../../Hooks/useFetch';
+import style from './UserForm.module.scss';
+import { Alert } from '../Alert/Alert';
+import { Button } from '../Button/Button';
 
-type UseForm = {
+export const UserForm = <T, K>({
+  children = '',
+  buttonTitle,
+  values = {},
+  request,
+}: {
   values?: { [x: string]: string };
   className?: string;
   buttonTitle: string;
   children: ReactNode;
-};
-
-export const UserForm: FC<UseForm> = ({ children = '', buttonTitle, values = {} }) => {
-  const [isFormValid, setIsFormValid] = useState(true);
+  request: Request<T, K>;
+}) => {
+  const [isFormValid, setIsFormValid] = useState(false);
   const form = Form.useForm();
 
   useEffect(() => {
@@ -24,16 +33,31 @@ export const UserForm: FC<UseForm> = ({ children = '', buttonTitle, values = {} 
     setIsFormValid(form.isFormValid());
   }, [form]);
 
-  const handleSubmit = useCallback((values: FormData) => {
-    console.log(values);
-  }, []);
+  const [{ data, error, isLoading }, handler] = useFetch(request);
+
+  const handleSubmit = useCallback(
+    (values: FormData) => {
+      if (isLoading) return;
+      const payload = Object.entries(values).reduce((acc, [name, { value }]) => {
+        return { ...acc, [name]: value };
+      }, {} as { [x: string]: string });
+      handler(payload as T);
+    },
+    [handler, isLoading]
+  );
 
   return (
-    <Form onSubmit={handleSubmit} onValuesChange={handleValuesChange} form={form}>
+    <Form
+      className={style.form}
+      onSubmit={handleSubmit}
+      onValuesChange={handleValuesChange}
+      form={form}
+    >
+      <Alert error={error} />
       <>{children}</>
-      <button disabled={!isFormValid} type='submit'>
+      <Button isLoading={isLoading} disabled={!isFormValid}>
         {buttonTitle}
-      </button>
+      </Button>
     </Form>
   );
 };

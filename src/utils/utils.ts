@@ -11,3 +11,10 @@ const getId = () => {
 };
 
 export const id = getId();
+
+
+export class AppError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}

@@ -2,11 +2,12 @@ import style from './UserForm.module.scss';
 import { Form } from '../../packages/Form/Form';
 import { memo } from 'react';
 import { UserForm } from './UserForm';
+import { registerRequest } from '../../utils/services';
 
 const valueValidator = (value: string) => !!value;
 
 const SignUpForm = () => (
-  <UserForm values={{ name: 'Artyom', login: 'gorushkin' }} buttonTitle='login'>
+  <UserForm request={registerRequest} buttonTitle='Sign Up'>
     <Form.Input name='login' type='text' className={style.input} rules={valueValidator} />
     <Form.Input name='name' type='text' className={style.input} rules={valueValidator} />
     <Form.Input name='password' type='text' className={style.input} rules={valueValidator} />

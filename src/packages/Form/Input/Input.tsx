@@ -24,6 +24,7 @@ export const Input = ({
   const input = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(false);
   const [isInputValid, setIsInputValid] = useState(true);
+  const [isInFocus, setIsInFocus] = useState(false);
 
   const updater = useCallback(
     ({ name: updatedPropertyName, value }: ValueArgs) => {
@@ -45,9 +46,9 @@ export const Input = ({
   }, [listener]);
 
   useLayoutEffect(() => {
+    if (input.current) input.current.value = '';
     if (isMounted.current || !name || !rules) return;
-    const value = input.current?.value || '';
-    bus.broadcast({ type: 'validate', name, validator: rules, value });
+    bus.broadcast({ type: 'validate', name, validator: rules });
     isMounted.current = true;
   }, [name, rules]);
 
@@ -63,11 +64,13 @@ export const Input = ({
     const isValid = rules(value);
     setIsInputValid(isValid);
     setIsActive(!!input.current?.value || false);
+    setIsInFocus(false);
   };
 
   const handleInputFocus = () => {
     setIsActive(true);
     setIsInputValid(true);
+    setIsInFocus(true);
   };
 
   return (
@@ -78,6 +81,7 @@ export const Input = ({
         className={cn(
           style.input,
           disabled && style.inputDisabled,
+          isInFocus && style.inputIsInFocus,
           !isInputValid && style.inputInvalid
         )}
         type={type}
@@ -91,6 +95,7 @@ export const Input = ({
           style.inputLabel,
           isActive && style.inputLabelActive,
           !isInputValid && style.inputLabelInvalid,
+          isInFocus && style.inputLabelIsInFocus,
           disabled && style.inputLabelDisabled
         )}
       >
