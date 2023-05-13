@@ -11,12 +11,14 @@ export const UserForm = <T, K>({
   buttonTitle,
   values = {},
   request,
+  obSubmit,
 }: {
   values?: { [x: string]: string };
   className?: string;
   buttonTitle: string;
   children: ReactNode;
   request: Request<T, K>;
+  obSubmit: (data: K) => void;
 }) => {
   const [isFormValid, setIsFormValid] = useState(false);
   const form = Form.useForm();
@@ -34,6 +36,10 @@ export const UserForm = <T, K>({
   }, [form]);
 
   const [{ data, error, isLoading }, handler] = useFetch(request);
+
+  useEffect(() => {
+    if (data) obSubmit(data);
+  }, [data, obSubmit]);
 
   const handleSubmit = useCallback(
     (values: FormData) => {
