@@ -1,20 +1,25 @@
 import { FieldValidator } from './Form';
 // TODO: replace object with map
 export type Listeners<T> = { [x: number]: T };
-export type ActionName = 'update' | 'validate' | 'init';
+export type ActionName = 'update' | 'init' | 'validate';
 export type ValueArgs = { name: string; value: string };
 export type ValidatorArgs = { name: string; validator: FieldValidator };
 export type ValueSender = (data: ValueArgs | ValidatorArgs) => void;
 
-export type ValidatorData = {
+export type InitData = {
   name: string;
   validator: FieldValidator;
-  type: ActionName;
+  type: Extract<ActionName, 'init'>;
 };
 
-export type ValueData = { name: string; value: string; type: ActionName };
+export type ValidateData = {
+  type: Extract<ActionName, 'validate'>;
+  name: string;
+};
 
-type BroadCast = ValueData | ValidatorData;
+export type ValueData = { name: string; value: string; type: Extract<ActionName, 'update'> };
+
+type BroadCast = ValueData | InitData | ValidateData;
 
 class Listener<T> {
   name: string;

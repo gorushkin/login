@@ -1,6 +1,6 @@
 import { id } from '../../utils/utils';
 import { FormValues, FormValidators, FormRawValues } from './Form';
-import { Bus, ValidatorData } from './FormListener';
+import { Bus, InitData } from './FormListener';
 
 const DEFAULT_VALIDATOR = () => true;
 
@@ -24,7 +24,7 @@ export class FormState {
     this.initForm();
   }
 
-  private validate({ name, validator }: ValidatorData) {
+  private validate({ name, validator }: InitData) {
     const value = '';
     const isValid = true;
     const item = { [name]: { isValid, value } };
@@ -33,7 +33,7 @@ export class FormState {
   }
 
   private initForm = () => {
-    this.listener = this.bus.add('validate', id(), this.validate.bind(this));
+    this.listener = this.bus.add('init', id(), this.validate.bind(this));
     this.listener.start();
   };
 
@@ -42,6 +42,10 @@ export class FormState {
   };
 
   isFormValid = (): boolean => !Object.values(this.values).some((item) => !item.isValid);
+
+  validateFields = (name: string) => {
+    this.bus.broadcast({ type: 'validate', name });
+  };
 
   setValues = (obj: FormRawValues) => {
     const values = Object.entries(obj).map(([name, value]) => ({ name, value }));

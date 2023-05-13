@@ -2,7 +2,7 @@ import style from './Input.module.scss';
 import { cn, id } from '../../../utils/utils';
 import { ChangeEvent, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from '../Form';
-import { ValueArgs, bus } from '../FormListener';
+import { ValidateData, ValueArgs, bus } from '../FormListener';
 import { FormValues } from '../Form';
 
 export interface InputProps {
@@ -36,24 +36,43 @@ export const Input = ({
     [name]
   );
 
+  const { onChange, form } = useFormContext();
+
+  const validate = useCallback(
+    ({name: field}: ValidateData) => {
+      if (!input.current) return;
+      const value = input.current.value;
+      if (field !== name && !value) return;
+      const values = form.getValues();
+      const isValid = rules(value, values);
+      setIsInputValid(isValid);
+    },
+    [form, name, rules]
+  );
+
   const listener = useMemo(() => {
-    return bus.add('update', id(), updater);
-  }, [updater]);
+    return {
+      update: bus.add('update', id(), updater),
+      validate: bus.add('validate', id(), validate),
+    };
+  }, [updater, validate]);
 
   useLayoutEffect(() => {
-    listener.start();
+    listener.update.start();
+    listener.validate.start();
 
-    return () => listener.stop();
-  }, [listener]);
+    return () => {
+      listener.update.stop();
+      listener.validate.stop();
+    };
+  }, [listener.update, listener.validate]);
 
   useLayoutEffect(() => {
     if (input.current) input.current.value = '';
     if (isMounted.current || !name || !rules) return;
-    bus.broadcast({ type: 'validate', name, validator: rules });
+    bus.broadcast({ type: 'init', name, validator: rules });
     isMounted.current = true;
   }, [name, rules]);
-
-  const { onChange, form } = useFormContext();
 
   const handleInputChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     onChange(name, value);
@@ -62,16 +81,14 @@ export const Input = ({
   };
 
   const handleInputBlur = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    const values = form.getValues();
-    const isValid = rules(value, values);
-    setIsInputValid(isValid);
-    setIsActive(!!input.current?.value || false);
+    setIsActive(!!value);
     setIsInFocus(false);
+    form.validateFields(name);
   };
 
   const handleInputFocus = () => {
     setIsActive(true);
-    setIsInputValid(true);
+    // setIsInputValid(true);
     setIsInFocus(true);
   };
 
