@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import { Response } from '../utils/services';
-import { AppError } from '../utils/utils';
 
 type Fetch<T, K> = (params: T) => Promise<Response<K>>;
 
