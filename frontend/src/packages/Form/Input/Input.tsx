@@ -11,6 +11,7 @@ export interface InputProps {
   className?: string;
   disabled?: boolean;
   rule?: Rules;
+  label?: string;
 }
 
 export const Input: FC<InputProps> = ({
@@ -19,6 +20,7 @@ export const Input: FC<InputProps> = ({
   className = '',
   disabled = false,
   rule = DEFAULT_RULES,
+  label = '',
 }) => {
   const isMounted = useRef(false);
   const inputWrapper = useRef<HTMLDivElement>(null);
@@ -27,6 +29,7 @@ export const Input: FC<InputProps> = ({
   const [isInputValid, setIsInputValid] = useState(true);
   const [isInFocus, setIsInFocus] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  console.log('errorMessage: ', errorMessage);
 
   const updater = useCallback(
     ({ name: updatedPropertyName, value }: ValueArgs) => {
@@ -92,8 +95,6 @@ export const Input: FC<InputProps> = ({
     setIsInFocus(true);
   };
 
-  const inputLabelText = isInputValid ? name : `${name} ${errorMessage}`;
-
   return (
     <div ref={inputWrapper} className={cn(style.inputWrapper, className)}>
       <input
@@ -111,17 +112,20 @@ export const Input: FC<InputProps> = ({
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}
       />
-      <span
-        className={cn(
-          style.inputLabel,
-          isActive && style.inputLabelActive,
-          !isInputValid && style.inputLabelInvalid,
-          isInFocus && style.inputLabelIsInFocus,
-          disabled && style.inputLabelDisabled
-        )}
-      >
-        {inputLabelText}
-      </span>
+      {label && (
+        <span
+          className={cn(
+            style.inputLabel,
+            isActive && style.inputLabelActive,
+            !isInputValid && style.inputLabelInvalid,
+            isInFocus && style.inputLabelIsInFocus,
+            disabled && style.inputLabelDisabled
+          )}
+        >
+          {label}
+        </span>
+      )}
+      {!!errorMessage && <span className={style.errorMessage}>{errorMessage}</span>}
     </div>
   );
 };

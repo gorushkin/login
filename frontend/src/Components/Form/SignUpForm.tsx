@@ -12,10 +12,23 @@ const SignUpForm = () => {
 
   return (
     <UserForm obSubmit={handleSubmit} request={registerRequest} buttonTitle='Sign Up'>
-      <Form.Input name='login' type='text' className={style.input} rule={simpleRule} />
-      <Form.Input name='name' type='text' className={style.input} rule={simpleRule} />
-      <Form.Input name='password' type='password' className={style.input} rule={simpleRule} />
       <Form.Input
+        label='Login'
+        name='login'
+        type='text'
+        className={style.input}
+        rule={simpleRule}
+      />
+      <Form.Input label='Name' name='name' type='text' className={style.input} rule={simpleRule} />
+      <Form.Input
+        label='Password'
+        name='password'
+        type='password'
+        className={style.input}
+        rule={simpleRule}
+      />
+      <Form.Input
+        label='Password Confirm'
         name='passwordConfirm'
         type='password'
         className={style.input}

@@ -70,3 +70,15 @@
     color: #000000;
   }
 }
+
+.errorMessage {
+  color: $input-error;
+  font-size: 1rem;
+  padding: 0 1rem;
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  transform: translateY(calc(100% + 0.5rem));
+  right: 0;
+  left: 0;
+}
