@@ -86,7 +86,7 @@ export const Input: FC<InputProps> = ({
   const handleInputBlur = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     setIsActive(!!value);
     setIsInFocus(false);
-    form.validateFields(name);
+    form.validateForm(name);
   };
 
   const handleInputFocus = () => {

@@ -5,9 +5,9 @@ import { Bus, InitData } from './FormListener';
 const DEFAULT_VALIDATOR = () => true;
 
 export class FormState {
-  values: FormValues;
+  private values: FormValues;
   private bus: Bus;
-  validators: { [x: string]: Rules };
+  private validators: { [x: string]: Rules };
   private listener: {
     start: () => void;
     stop: () => void;
@@ -78,12 +78,12 @@ export class FormState {
     this.values = { ...this.values, ...validatedValuesObj };
   };
 
-  validateForm = () => {
+  private validateFormValues = () => {
     this.validateFormFields();
     this.isFormValid = !Object.values(this.values).some((item) => !item.isValid);
   };
 
-  validateFields = (name: string) => {
+  validateForm = (name: string) => {
     this.validateFormFields();
     this.bus.broadcast({ type: 'validate', name });
   };
@@ -108,7 +108,7 @@ export class FormState {
       {} as FormValues
     );
     this.values = { ...this.values, ...validatedValuesObj };
-    this.validateForm();
+    this.validateFormValues();
   };
 
   getValues = () => this.values;
