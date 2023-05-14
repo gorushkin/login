@@ -17,6 +17,8 @@ const user = {
 const ERROR_PAYLOAD = 'There is no data in the payload';
 const ERROR_WRONG_USER = 'There is no user with this login';
 const ERROR_WRONG_PASSWORD = 'The password is not correct';
+const ERROR_LOGIN_EXIST = 'User with this login already exists';
+const ERROR_PASSWORDS = 'Confirm password is not same as password';
 
 app.register(cookie, {
   secret: 'my-secret',
@@ -53,11 +55,29 @@ app.post('/login', async (req: FastifyRequest, res: FastifyReply) => {
       .send({ ok: true, data: { user: 'Ivan', age: 23 } });
   };
 
-  await delay(reply, 5550);
+  await delay(reply, 500);
 });
 
-app.post('/auth', (req, res) => {
-  res.status(200).send({ message: 'Server is running!' });
+app.post('/register', (req, res) => {
+  const body = req.body as {
+    login: string;
+    name: string;
+    password: string;
+    passwordConfirm: string;
+  };
+
+  if (!body.login || !body.password || !body.name || !body.passwordConfirm)
+    throw new ValidateError(ERROR_PAYLOAD, 400, [ERROR_PAYLOAD]);
+
+  if (body.login === user.login)
+    throw new ValidateError(ERROR_LOGIN_EXIST, 400, [ERROR_LOGIN_EXIST]);
+
+  if (body.password !== body.passwordConfirm)
+    throw new ValidateError(ERROR_PASSWORDS, 400, [ERROR_PASSWORDS]);
+
+  const newUser = { login: body.login, name: body.name };
+
+  res.status(200).send({ ok: true, data: newUser });
 });
 
 app.get('*', (req, res) => {
