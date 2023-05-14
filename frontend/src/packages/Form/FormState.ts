@@ -1,17 +1,18 @@
 import { id } from '../../utils/utils';
-import { FormValues, FormValidators, FormRawValues } from './Form';
+import { FormValues, FormRawValues, Rules } from './Form';
 import { Bus, InitData } from './FormListener';
 
 const DEFAULT_VALIDATOR = () => true;
 
 export class FormState {
-  values: FormValues;
+  private values: FormValues;
   private bus: Bus;
-  validators: FormValidators;
+  private validators: { [x: string]: Rules };
   private listener: {
     start: () => void;
     stop: () => void;
   };
+  isFormValid: boolean;
 
   constructor(bus: Bus) {
     this.values = {} as FormValues;
@@ -22,18 +23,34 @@ export class FormState {
       stop: () => undefined,
     };
     this.initForm();
+    this.isFormValid = false;
   }
 
-  private validate({ name, validator }: InitData) {
+  private validateValue = (
+    value: string,
+    rules: Rules
+  ): { isValid: boolean; errorMessage: string } => {
+    const fieldErrors = rules
+      .map(({ message, rule }) => {
+        const isValid = rule(value, this.values);
+        return isValid ? '' : message;
+      })
+      .filter((error) => !!error);
+
+    const errorMessage = fieldErrors?.[0] || '';
+    return { isValid: !errorMessage, errorMessage };
+  };
+
+  private addFieldRule({ name, rules }: InitData) {
     const value = '';
-    const isValid = true;
-    const item = { [name]: { isValid, value } };
+    const { errorMessage, isValid } = this.validateValue(value, rules);
+    const item: FormValues = { [name]: { isValid, value, errorMessage } };
     this.values = { ...this.values, ...item };
-    this.validators = { ...this.validators, ...{ [name]: validator } };
+    this.validators = { ...this.validators, ...{ [name]: rules } };
   }
 
   private initForm = () => {
-    this.listener = this.bus.add('init', id(), this.validate.bind(this));
+    this.listener = this.bus.add('init', id(), this.addFieldRule.bind(this));
     this.listener.start();
   };
 
@@ -41,28 +58,57 @@ export class FormState {
     this.listener.stop();
   };
 
-  isFormValid = (): boolean => !Object.values(this.values).some((item) => !item.isValid);
+  private validateFormFields = () => {
+    const values = Object.entries(this.values).map(([name, field]) => ({ name, field }));
 
-  validateFields = (name: string) => {
+    const validatedValues = values.map(({ name, field }) => {
+      const rule = this.validators[name] || DEFAULT_VALIDATOR;
+      const value = field.value;
+      const { errorMessage, isValid } = this.validateValue(value, rule);
+      return { value, isValid, name, errorMessage };
+    });
+
+    const validatedValuesObj = validatedValues.reduce(
+      (acc, { name, value, isValid, errorMessage }) => {
+        return { ...acc, [name]: { value, isValid, errorMessage } } as FormValues;
+      },
+      {} as FormValues
+    );
+
+    this.values = { ...this.values, ...validatedValuesObj };
+  };
+
+  private validateFormValues = () => {
+    this.validateFormFields();
+    this.isFormValid = !Object.values(this.values).some((item) => !item.isValid);
+  };
+
+  validateForm = (name: string) => {
+    this.validateFormFields();
     this.bus.broadcast({ type: 'validate', name });
   };
 
   setValues = (obj: FormRawValues) => {
     const values = Object.entries(obj).map(([name, value]) => ({ name, value }));
+
     const validatedValues = values.map(({ name, value }) => {
-      const validator = this.validators[name] || DEFAULT_VALIDATOR;
-      const isValid = validator(value, this.values);
-      return { value, isValid, name };
+      const rule = this.validators[name] || DEFAULT_VALIDATOR;
+      const { errorMessage, isValid } = this.validateValue(value, rule);
+      return { value, isValid, name, errorMessage };
     });
 
     validatedValues.forEach(({ name, value }) => {
       this.bus.broadcast({ type: 'update', name, value });
     });
 
-    const validatedValuesObj = validatedValues.reduce((acc, { name, value, isValid }) => {
-      return { ...acc, [name]: { value, isValid } };
-    }, {} as FormValues);
+    const validatedValuesObj = validatedValues.reduce(
+      (acc, { name, value, isValid, errorMessage }) => {
+        return { ...acc, [name]: { value, isValid, errorMessage } } as FormValues;
+      },
+      {} as FormValues
+    );
     this.values = { ...this.values, ...validatedValuesObj };
+    this.validateFormValues();
   };
 
   getValues = () => this.values;

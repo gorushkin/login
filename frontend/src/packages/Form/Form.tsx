@@ -12,7 +12,10 @@ import { bus } from './FormListener';
 import { FormState } from './FormState';
 import { Input, InputProps } from './Input/Input';
 
-type ContextType = { onChange: (name: string, value: string) => void; form: FormState };
+type ContextType = {
+  onChange: (name: string, value: string) => void;
+  form: FormState;
+};
 
 export const FormContext = createContext<ContextType | null>(null);
 export type FieldValidator = (value: string, values: FormValues) => boolean;
@@ -20,14 +23,24 @@ export type FieldValidator = (value: string, values: FormValues) => boolean;
 export type FormRawValues = { [x: string]: string };
 export type FormValidators = { [x: string]: FieldValidator };
 
+export type Rule = {
+  rule: FieldValidator;
+  message: string;
+};
+
+export type Rules = Rule[];
+
+export type FormRules = { [x: string]: Rule };
+
 export type FormValues = {
   [x: string]: {
     value: string;
     isValid: boolean;
+    errorMessage: string;
   };
 };
 
-type FormType = {
+type FormProps = {
   children: ReactNode;
   className?: string;
   form: FormState;
@@ -36,11 +49,11 @@ type FormType = {
 };
 
 interface Form<T> extends FC<T> {
-  Input: ({ name, type, className, disabled, rules }: InputProps) => JSX.Element;
+  Input: FC<InputProps>;
   useForm: () => FormState;
 }
 
-const Form: Form<FormType> = ({ children, form, onValuesChange, onSubmit, className = '' }) => {
+const Form: Form<FormProps> = ({ children, form, onValuesChange, onSubmit, className = '' }) => {
   const onChange = useCallback(
     (name: string, value: string) => {
       form.setValues({ [name]: value });

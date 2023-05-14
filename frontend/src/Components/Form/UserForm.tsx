@@ -28,12 +28,12 @@ export const UserForm = <T, K>({
   }, [form, values]);
 
   useEffect(() => {
-    setIsFormValid(form.isFormValid());
-  }, [form]);
+    setIsFormValid(form.isFormValid);
+  }, [form.isFormValid]);
 
   const handleValuesChange = useCallback(() => {
-    setIsFormValid(form.isFormValid());
-  }, [form]);
+    setIsFormValid(form.isFormValid);
+  }, [form.isFormValid]);
 
   const [{ data, error, isLoading }, handler] = useFetch(request);
 

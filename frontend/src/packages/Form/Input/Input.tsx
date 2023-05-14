@@ -1,31 +1,34 @@
 import style from './Input.module.scss';
 import { cn, id } from '../../../utils/utils';
-import { ChangeEvent, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useFormContext } from '../Form';
+import { ChangeEvent, FC, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Rules, useFormContext } from '../Form';
 import { ValidateData, ValueArgs, bus } from '../FormListener';
-import { FormValues } from '../Form';
+import { DEFAULT_RULES } from '../../../utils/validators';
 
 export interface InputProps {
   type: string;
   name: string;
   className?: string;
   disabled?: boolean;
-  rules?: (value: string, values: FormValues) => boolean;
+  rule?: Rules;
+  label?: string;
 }
 
-export const Input = ({
+export const Input: FC<InputProps> = ({
   name,
   type,
   className = '',
   disabled = false,
-  rules = () => true,
-}: InputProps) => {
+  rule = DEFAULT_RULES,
+  label = '',
+}) => {
   const isMounted = useRef(false);
   const inputWrapper = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(false);
   const [isInputValid, setIsInputValid] = useState(true);
   const [isInFocus, setIsInFocus] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const updater = useCallback(
     ({ name: updatedPropertyName, value }: ValueArgs) => {
@@ -39,15 +42,15 @@ export const Input = ({
   const { onChange, form } = useFormContext();
 
   const validate = useCallback(
-    ({name: field}: ValidateData) => {
+    ({ name: field }: ValidateData) => {
       if (!input.current) return;
-      const value = input.current.value;
-      if (field !== name && !value) return;
-      const values = form.getValues();
-      const isValid = rules(value, values);
-      setIsInputValid(isValid);
+      const inputValue = input.current.value;
+      if (field !== name && !inputValue) return;
+      const value = form.getValues()[name];
+      setErrorMessage(value.errorMessage);
+      setIsInputValid(value.isValid);
     },
-    [form, name, rules]
+    [form, name]
   );
 
   const listener = useMemo(() => {
@@ -69,10 +72,10 @@ export const Input = ({
 
   useLayoutEffect(() => {
     if (input.current) input.current.value = '';
-    if (isMounted.current || !name || !rules) return;
-    bus.broadcast({ type: 'init', name, validator: rules });
+    if (isMounted.current || !name || !rule) return;
+    bus.broadcast({ type: 'init', name, rules: rule });
     isMounted.current = true;
-  }, [name, rules]);
+  }, [name, rule]);
 
   const handleInputChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     onChange(name, value);
@@ -83,12 +86,11 @@ export const Input = ({
   const handleInputBlur = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     setIsActive(!!value);
     setIsInFocus(false);
-    form.validateFields(name);
+    form.validateForm(name);
   };
 
   const handleInputFocus = () => {
     setIsActive(true);
-    // setIsInputValid(true);
     setIsInFocus(true);
   };
 
@@ -109,17 +111,20 @@ export const Input = ({
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}
       />
-      <span
-        className={cn(
-          style.inputLabel,
-          isActive && style.inputLabelActive,
-          !isInputValid && style.inputLabelInvalid,
-          isInFocus && style.inputLabelIsInFocus,
-          disabled && style.inputLabelDisabled
-        )}
-      >
-        {name}
-      </span>
+      {label && (
+        <span
+          className={cn(
+            style.inputLabel,
+            isActive && style.inputLabelActive,
+            !isInputValid && style.inputLabelInvalid,
+            isInFocus && style.inputLabelIsInFocus,
+            disabled && style.inputLabelDisabled
+          )}
+        >
+          {label}
+        </span>
+      )}
+      {!!errorMessage && <span className={style.errorMessage}>{errorMessage}</span>}
     </div>
   );
 };

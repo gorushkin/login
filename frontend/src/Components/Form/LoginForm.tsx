@@ -4,8 +4,7 @@ import { memo, useCallback, useState } from 'react';
 import { UserForm } from './UserForm';
 import { LoginRequestResult, loginRequest } from '../../utils/services';
 import { startTimer } from '../../utils/utils';
-
-const valueValidator = (value: string) => !!value;
+import { simpleRule } from '../../utils/validators';
 
 const LoginForm = () => {
   const [user, setUser] = useState<{ user: string; age: number } | null>(null);
@@ -20,8 +19,20 @@ const LoginForm = () => {
   return (
     <div className={style.wrapper}>
       <UserForm obSubmit={handleSubmit} request={loginRequest} buttonTitle='login'>
-        <Form.Input name='login' type='text' className={style.input} rules={valueValidator} />
-        <Form.Input name='password' type='password' className={style.input} rules={valueValidator} />
+        <Form.Input
+          label='Login'
+          name='login'
+          type='text'
+          className={style.input}
+          rule={simpleRule}
+        />
+        <Form.Input
+          label='Password'
+          name='password'
+          type='password'
+          className={style.input}
+          rule={simpleRule}
+        />
       </UserForm>
       {!!user && (
         <div className={style.userInfo}>
