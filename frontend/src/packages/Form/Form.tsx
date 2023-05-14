@@ -12,7 +12,10 @@ import { bus } from './FormListener';
 import { FormState } from './FormState';
 import { Input, InputProps } from './Input/Input';
 
-type ContextType = { onChange: (name: string, value: string) => void; form: FormState };
+type ContextType = {
+  onChange: (name: string, value: string) => void;
+  form: FormState;
+};
 
 export const FormContext = createContext<ContextType | null>(null);
 export type FieldValidator = (value: string, values: FormValues) => boolean;
@@ -37,7 +40,7 @@ export type FormValues = {
   };
 };
 
-type FormType = {
+type FormProps = {
   children: ReactNode;
   className?: string;
   form: FormState;
@@ -50,7 +53,7 @@ interface Form<T> extends FC<T> {
   useForm: () => FormState;
 }
 
-const Form: Form<FormType> = ({ children, form, onValuesChange, onSubmit, className = '' }) => {
+const Form: Form<FormProps> = ({ children, form, onValuesChange, onSubmit, className = '' }) => {
   const onChange = useCallback(
     (name: string, value: string) => {
       form.setValues({ [name]: value });

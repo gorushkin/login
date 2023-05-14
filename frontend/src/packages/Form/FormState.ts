@@ -12,6 +12,7 @@ export class FormState {
     start: () => void;
     stop: () => void;
   };
+  isFormValid: boolean;
 
   constructor(bus: Bus) {
     this.values = {} as FormValues;
@@ -22,6 +23,7 @@ export class FormState {
       stop: () => undefined,
     };
     this.initForm();
+    this.isFormValid = false;
   }
 
   private validateValue = (
@@ -56,7 +58,7 @@ export class FormState {
     this.listener.stop();
   };
 
-  private validateForm = () => {
+  private validateFormFields = () => {
     const values = Object.entries(this.values).map(([name, field]) => ({ name, field }));
 
     const validatedValues = values.map(({ name, field }) => {
@@ -76,12 +78,13 @@ export class FormState {
     this.values = { ...this.values, ...validatedValuesObj };
   };
 
-  isFormValid = (): boolean => {
-    return !Object.values(this.values).some((item) => !item.isValid);
+  validateForm = () => {
+    this.validateFormFields();
+    this.isFormValid = !Object.values(this.values).some((item) => !item.isValid);
   };
 
   validateFields = (name: string) => {
-    this.validateForm();
+    this.validateFormFields();
     this.bus.broadcast({ type: 'validate', name });
   };
 
@@ -105,6 +108,7 @@ export class FormState {
       {} as FormValues
     );
     this.values = { ...this.values, ...validatedValuesObj };
+    this.validateForm();
   };
 
   getValues = () => this.values;

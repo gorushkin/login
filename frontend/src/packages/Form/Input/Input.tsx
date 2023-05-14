@@ -29,7 +29,6 @@ export const Input: FC<InputProps> = ({
   const [isInputValid, setIsInputValid] = useState(true);
   const [isInFocus, setIsInFocus] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  console.log('errorMessage: ', errorMessage);
 
   const updater = useCallback(
     ({ name: updatedPropertyName, value }: ValueArgs) => {
