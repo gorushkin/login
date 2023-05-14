@@ -21,7 +21,7 @@ const LoginForm = () => {
     <div className={style.wrapper}>
       <UserForm obSubmit={handleSubmit} request={loginRequest} buttonTitle='login'>
         <Form.Input name='login' type='text' className={style.input} rules={valueValidator} />
-        <Form.Input name='password' type='text' className={style.input} rules={valueValidator} />
+        <Form.Input name='password' type='password' className={style.input} rules={valueValidator} />
       </UserForm>
       {!!user && (
         <div className={style.userInfo}>

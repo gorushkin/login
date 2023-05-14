@@ -44,9 +44,10 @@ export const UserForm = <T, K>({
   const handleSubmit = useCallback(
     (values: FormValues) => {
       if (isLoading) return;
-      const payload = Object.entries(values).reduce((acc, [name, { value }]) => {
-        return { ...acc, [name]: value };
-      }, {} as { [x: string]: string });
+      const payload = Object.entries(values).reduce(
+        (acc, [name, { value }]) => ({ ...acc, [name]: value }),
+        {} as { [x: string]: string }
+      );
       handler(payload as T);
     },
     [handler, isLoading]

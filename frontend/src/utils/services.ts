@@ -37,9 +37,8 @@ const request =
     return (await response.json()) as K;
   };
 
-export const loginRequest: Request<LoginRequestPayload, LoginRequestResult> = await request(
-  ROUTE.login
-);
+export const loginRequest: Request<LoginRequestPayload, LoginRequestResult> = request(ROUTE.login);
 
-export const registerRequest: Request<RegisterRequestPayload, RegisterRequestResult> =
-  await request(ROUTE.register);
+export const registerRequest: Request<RegisterRequestPayload, RegisterRequestResult> = request(
+  ROUTE.register
+);
