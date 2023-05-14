@@ -1,14 +1,14 @@
-import { FieldValidator } from './Form';
+import { Rules } from './Form';
 // TODO: replace object with map
 export type Listeners<T> = { [x: number]: T };
 export type ActionName = 'update' | 'init' | 'validate';
 export type ValueArgs = { name: string; value: string };
-export type ValidatorArgs = { name: string; validator: FieldValidator };
+export type ValidatorArgs = { name: string; rules: Rules };
 export type ValueSender = (data: ValueArgs | ValidatorArgs) => void;
 
 export type InitData = {
   name: string;
-  validator: FieldValidator;
+  rules: Rules;
   type: Extract<ActionName, 'init'>;
 };
 

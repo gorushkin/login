@@ -20,10 +20,20 @@ export type FieldValidator = (value: string, values: FormValues) => boolean;
 export type FormRawValues = { [x: string]: string };
 export type FormValidators = { [x: string]: FieldValidator };
 
+export type Rule = {
+  rule: FieldValidator;
+  message: string;
+};
+
+export type Rules = Rule[];
+
+export type FormRules = { [x: string]: Rule };
+
 export type FormValues = {
   [x: string]: {
     value: string;
     isValid: boolean;
+    errorMessage: string;
   };
 };
 
@@ -36,7 +46,7 @@ type FormType = {
 };
 
 interface Form<T> extends FC<T> {
-  Input: ({ name, type, className, disabled, rules }: InputProps) => JSX.Element;
+  Input: FC<InputProps>;
   useForm: () => FormState;
 }
 
